@@ -1,0 +1,19 @@
+# Generated Godot cache; keep resource import settings and .uid files.
+.godot/
+
+# Exported builds belong in release downloads, not source history.
+/build/
+/dist/
+*.exe
+*.pck
+*.x86_64
+*.zip
+
+# Local credentials, preferences, logs, and editor/OS caches.
+export_credentials.cfg
+preferences.cfg
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
