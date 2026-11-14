@@ -1,4 +1,44 @@
-# Validation — Downstack review updates
+# Validation — Downstack 0.9.0
+
+## Release verification — 14 November 2026
+
+Version 0.9.0 brings the approved visual, garbage, menu, handling and gravity
+updates together. `project.godot` explicitly sets VSync mode 0 (disabled),
+maximum render FPS 0 (uncapped), and 120 physics ticks per second. Gameplay
+continues in `_physics_process`; no movement or drop timers were moved to the
+render loop. Snapshot transmission remains 20 Hz. Windows file/product versions
+are 0.9.0.0, and multiplayer protocol remains 8.
+
+Local release checks used Godot **4.6.3.stable.official.7d41c59c4** on Linux:
+
+- All twelve suites passed: **1117 assertions, 0 failures**, including the
+  8192-event input stress sequence. `tools/run_checks.py` isolates preferences
+  on both Windows and Linux.
+- Five-process loopback multiplayer passed, including the protocol 7 rejection,
+  spectator host, independent player inputs and intact large garbage shafts.
+- The official export-template archive passed its published SHA-256 digest.
+- Windows x64 release export passed. The PE header, embedded Downstack product
+  name, 0.9.0.0 version strings, external PCK, seven-size ICO, shortcut helper,
+  licenses and ZIP integrity were inspected.
+- The exported PCK started successfully in Linux Godot. Reading configuration
+  from that actual PCK confirmed **120 Hz / max FPS 0 / VSync 0**.
+- Python build/check helpers compile, the workflow YAML parses, and
+  `git diff --check` passes. The build writes a ZIP checksum and source-commit
+  metadata; an uncommitted local preflight package is not the published asset.
+
+The Windows release workflow runs the regression suites and multiplayer check
+again on its Windows runner, then exports and smoke-tests the actual Windows
+executable before publishing the versioned ZIP. Its result is recorded under
+[Windows release Actions](https://github.com/Tspin420/down-stack-/actions/workflows/release.yml).
+The published asset's `BUILD_INFO.json` identifies its tested source commit.
+
+Physical Windows/controller gameplay, Windows shortcut creation, WAN behavior
+and frame pacing still require target-PC playtesting. Headless startup and
+software-rendered screenshots do not establish real display performance.
+Disabling VSync may expose tearing; an external driver/OS cap can still apply.
+
+The sections below preserve the evidence from earlier reviews. Their statements
+about pending packaging or older protocols describe those earlier checkpoints.
 
 ## Menu, lobby, launch and gravity review — 14 November 2026
 
