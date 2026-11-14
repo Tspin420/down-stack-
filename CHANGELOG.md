@@ -19,7 +19,11 @@ Zero selects the existing default on every control; Reset handling returns all
 three to zero. Custom 1–10 DAS/ARR speeds and saved soft-drop rates are retained;
 a 75 cells/second choice fills the tenth finite soft-drop position. Instant stays
 an explicit toggle and turning it off restores the selected slider position.
-The baseline remains PPT-inspired, not newly verified frame-perfect PPT timing.
+Default soft drop at zero was rechecked against the public March 2009 guideline:
+20× normal gravity, with the existing lock delay retained. The implementation
+already matches this multiplier, so no gameplay timing changed. Five new checks
+cover default release, lock delay and continued dropping on the next piece.
+Exact PPT timing and the latest private guideline remain unverified.
 
 Enlarged and centered Hold/Next previews, shifted the playfield right, and added
 the nonlinear incoming-garbage meter with separate amount and urgency cues.
@@ -35,7 +39,7 @@ by the former 20-row router and 40-row receiver cutoffs. Perfect clears remain
 10 total before cancellation.
 
 Multiplayer protocol 7 carries numeric B2B state and the expanded attack range.
-All players and spectators need the updated build. All 1022 automated checks and
+All players and spectators need the updated build. All 1027 automated checks and
 the five-process multiplayer test passed on Linux/Godot 4.6.3, including old-client
 rejection. Resource export and startup passed; Windows runtime and frame-pacing
 validation remain pending. See RULES_REFERENCE.md and VALIDATION.md.
