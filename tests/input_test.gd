@@ -159,6 +159,26 @@ func run():
  y = b.pos.y
  for i in 24: b.step(TICK,Board.SOFT)
  check(b.pos.y-y == 5,"guideline preset scales with level gravity")
+ b = Board.new(1,{"soft_drop":-1.0})
+ b.piece = 7
+ b.pos = Vector2i(3,Board.SPAWN_Y)
+ b.step(TICK,Board.SOFT)
+ y = b.pos.y
+ for i in 119: b.step(TICK,0)
+ check(b.pos.y == y,"default soft-drop release restores the ordinary one-second interval")
+ b.step(TICK,0)
+ check(b.pos.y == y+1,"ordinary gravity resumes after releasing default soft drop")
+ b = Board.new(1,{"soft_drop":-1.0},{"entry_ms":0.0,"clear_ms":0.0,"mode":"sprint"})
+ b.piece = 7
+ b.pos = Vector2i(3,Board.SPAWN_Y)
+ b.pos.y = b.ghost_y()
+ for i in 59: b.step(TICK,Board.SOFT)
+ check(b.pieces == 0,"default soft drop retains the 500 ms lock delay")
+ for i in 2: b.step(TICK,Board.SOFT)
+ check(b.pieces == 1,"holding default soft drop does not extend lock delay indefinitely")
+ y = b.pos.y
+ for i in 12: b.step(TICK,Board.SOFT)
+ check(b.pos.y > y and b.pieces == 1,"held default soft drop continues on the next piece without a new press")
  var app = Main.new()
  root.add_child(app)
  app.set_physics_process(false)

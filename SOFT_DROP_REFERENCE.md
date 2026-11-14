@@ -1,6 +1,12 @@
-# Soft-drop comparison — Downstack 0.5
+# Soft-drop reference — Downstack
 
 Checked 12 November 2026. This audit distinguishes published behavior, numerical settings, and parameters that still need direct measurement. It does not claim that every modern falling-block game game has identical timing.
+
+## Default verified — 14 November 2026
+
+The default at slider **0** follows the publicly reproduced **March 2009 falling-block game Design Guideline**, sections **5.5** (page 17) and **7.1** (page 20): soft-drop interval = normal fall interval / 20. Section 7.1 presents this as a suggested speed. At Downstack's starting and Sprint gravity, that means **20 cells/second**, or **50 ms per cell**; it scales with normal gravity in versus. This is a historical guideline baseline, not a verified numerical match for falling-block game or a claim about the latest private guideline.
+
+Downstack already implements this interval, so no gameplay timing change was needed. Rechecked **198 input, controller-drop and Settings assertions** in Godot 4.6.3 on Linux. Coverage confirms the 20× cadence at base and increased gravity, normal gravity after release, retained 500 ms lock delay, continued dropping on the next piece while held, and slider-zero persistence. Five new assertions cover default release, lock delay and continued hold specifically. The public document does not fully specify the first-cell/re-press cadence; Downstack retains its tested anti-burst input behavior.
 
 | Reference | Verified behavior or speed | Evidence and limits |
 | --- | --- | --- |
@@ -22,6 +28,7 @@ This reproduces and fixes a matching software failure. It does not prove that th
 ## Sources
 
 - Historical guideline reproduction: [historical source link removed]
+- Rechecked reproduction of the same historical document: [historical source link removed]
 - TETR.IO live configuration: https://tetr.io/
 - Team-maintained mechanics FAQ, Soft Drop Factor and Sonic Drop: https://github.com/tetrio/faq/blob/main/mechanics.html
 - Official TETR.IO patch notes, Alpha 4.0.0 (22 June 2020): https://tetr.io/about/patchnotes/

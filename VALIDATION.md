@@ -30,7 +30,9 @@ default, finite and Instant soft-drop behavior is retained.
 DAS, ARR and soft drop share the same 0–10 track and numeric readout; 0 selects
 the existing default on each control. Custom speeds keep their previous values,
 with an added 75 cells/second finite step. Reset handling puts all three at 0.
-The default remains falling-block game-inspired; exact falling-block game soft-drop timing is not newly verified.
+Default soft drop at zero matches the 20× normal-gravity rule in the publicly
+reproduced March 2009 guideline (sections 5.5 and 7.1); exact falling-block game timing and the
+latest private guideline remain unverified. No gameplay timing was changed.
 Online rooms show a CURRENTLY SPECTATING banner whenever the local computer owns no player slots,
 in the lobby, its Settings page and the match. No extra role selector is added.
 
@@ -38,19 +40,22 @@ in the lobby, its Settings page and the match. No extra role selector is added.
 
 Godot **4.6.3.stable.official.7d41c59c4**, Linux, with isolated preferences.
 
-- All **969 non-menu assertions** passed, including settings persistence,
+- All **974 non-menu assertions** passed, including settings persistence,
   fullscreen restoration, input stress, controller disconnection and rendering.
   Six additional settings checks cover Reset handling, persistence, draft
   cancellation and preservation of custom bindings and other profiles.
   The slider follow-up adds 40 checks for default timing, shared slider layout,
   zero/default versus Instant, every saved soft-drop rate through the UI, and 75 cells/second cadence.
+  The guideline verification adds five default release/lock/continued-hold checks.
+  Its targeted rerun passed 198 assertions: input 72, controller drop 51, Settings 75.
+  Other suite results below remain from the preceding unchanged production code.
 - **53 menu assertions** passed: keyboard/D-pad/A/B navigation, page focus,
   Settings return, empty address, cancellation and failure, roster add/edit/remove,
   independent handling, full-lobby behavior, remote slot ownership, host/client
   controls, Sprint setup, Start, hard-drop isolation, results and best-time refresh.
   Ten additional checks cover spectator hosts/clients, adding/removing multiple
   local players, Settings, match entry and clearing the banner on leaving.
-  **1022 total assertions, 0 failures.**
+  **1027 total assertions, 0 failures.**
 - Five-process loopback multiplayer passed: four compatible participants and
   deliberate rejection of a protocol 6 client.
 - Actual Compatibility-rendered menu, Network, local lobby, expanded rules,
