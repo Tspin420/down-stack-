@@ -32,6 +32,20 @@ executable before publishing the versioned ZIP. Its result is recorded under
 [Windows release Actions](https://github.com/Tspin420/down-stack-/actions/workflows/release.yml).
 The published asset's `BUILD_INFO.json` identifies its tested source commit.
 
+### Published Windows result
+
+[Windows release run 43645098780](https://github.com/Tspin420/down-stack-/actions/runs/43645098780)
+completed successfully on Windows Server 2025. All **1117 assertions** and the
+five-process multiplayer test passed, including rejection of protocol 7.
+The exported Windows executable completed its 120-frame headless startup and
+log check. The workflow then published
+[v0.9.0](https://github.com/Tspin420/down-stack-/releases/tag/v0.9.0) from commit
+`69848781257d29c0f4bdf6b7959585babc950588`.
+
+Published asset: `Downstack_Windows_0.9.0.zip` (38,473,740 bytes).
+SHA-256: `c0b0ebebf4c3733f1bfd4677c37c05c1a45a093b89c1f40269c2fc79f6449174`.
+The adjacent `.zip.sha256` asset contains the same checksum.
+
 Physical Windows/controller gameplay, Windows shortcut creation, WAN behavior
 and frame pacing still require target-PC playtesting. Headless startup and
 software-rendered screenshots do not establish real display performance.

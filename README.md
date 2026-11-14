@@ -35,6 +35,8 @@ If shortcut creation is restricted by your Windows configuration, right-click Do
 
 See [RELEASE_NOTES.md](RELEASE_NOTES.md) for this update, [CHANGELOG.md](CHANGELOG.md) for earlier releases and [VALIDATION.md](VALIDATION.md) for checks and remaining hardware tests.
 
+Release validation passed all **1117 assertions** and the five-process multiplayer test on both Linux and Windows. The exported Windows executable also passed headless startup. [Windows build and test results](https://github.com/Tspin420/down-stack-/actions/runs/43645098780).
+
 ## Updating an existing installation
 
 Close Downstack and extract the new ZIP into a new folder. Keep all packaged files together. Controls, volume, fullscreen preference and Sprint records are stored separately in `%APPDATA%\Godot\app_userdata\Downstack` and survive changing the game folder. Run the desktop-shortcut helper again from the new folder if you used a shortcut. Everyone in an online room needs the same current build.
