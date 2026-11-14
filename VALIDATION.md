@@ -1,4 +1,254 @@
-# Validation — Downstack 0.8.0
+# Validation — Downstack review updates
+
+## Approved garbage rules update — 14 November 2026
+
+Source update based on `ad71b2c8cfd37f3035edf4ee27959fb9b32fafe2`, including
+the approved playfield visuals and garbage rules. This validation covers the
+source update; a Windows release has not been validated. The historical visual section
+below records that earlier proposal's scope; its statements about unchanged
+gameplay and protocol do not describe this subsequent rules update.
+
+### Implemented behavior
+
+- TETR.IO combo multiplier and logarithmic minimum, rounded down, followed by
+  the user's growing flat B2B bonus. No B2B surge or multiplication of that bonus.
+- One-for-one FIFO cancellation and blocking on every clearing placement,
+  including zero-attack singles. A non-clearing lock admits ready garbage.
+  Cancellation never resets or extends a packet's warning time.
+- Numeric B2B state: first qualifying clear establishes the chain at 0; later
+  qualifying clears add 1, 2, 3, and so on. Ordinary clears break the chain;
+  non-clearing placements preserve it and end the combo.
+- Every attack retains one packet, hole column and target. Its shaft depth equals
+  its final sent value, including combo and B2B contributions. Separate attacks
+  choose independent columns. Cancellation reduces the depth without changing
+  the column or deadline. No size threshold or within-attack hole changes apply.
+- Removed the old 20-row router and 40-row receiver cutoffs; board insertion work
+  is bounded by the 40-row playfield even for an extreme overflow packet.
+- Protocol 7 validates and replicates the numeric counter and one amount/hole
+  pair per packet. Earlier clients are rejected before entering the lobby.
+
+The exact formula, indexing, examples and research references are documented in
+`RULES_REFERENCE.md`. Perfect clears still override attack to 10, warning time
+remains 1000 ms by default, and all ready packets may rise on a non-clear.
+
+### Verification performed on this update
+
+Godot **4.6.3.stable.official.7d41c59c4**, Linux. Preference-writing tests used
+isolated temporary user-data directories.
+
+| Check | Result |
+| --- | --- |
+| Core / garbage / feature tests | 41 / 230 / 65 checks passed |
+| Input / settings / controller-drop tests | 67 / 38 / 48 checks passed |
+| Input audit / hidden buffer / desktop tests | 214 / 89 / 25 checks passed |
+| Existing visual, preview and nonlinear-meter regressions | 106 checks passed |
+| Total automated assertions | **923 passed, 0 failures** |
+| Five-process loopback integration | Four compatible participants passed; old-protocol client rejected |
+| Windows-preset PCK export | Passed |
+| Exported PCK loaded in Linux Godot, headless, 120 frames | Passed; no errors |
+
+The garbage tests include a continuous, legal two-wide field with six doubles
+followed by two quads: attacks `1,1,1,1,2,2,10,12`, without resetting the field.
+They verify the agreed T-spin examples (B2B 3 = 7, B2B 4 = 8, and combo index 4
+with B2B 4 = 12), single-only combo rounding, chain preservation/breaking,
+zero-attack blocking, exact partial cancellation, unchanged deadlines, FIFO
+cancellation across ready and travelling packets, and extreme-packet overflow.
+Additional checks follow actual doubles, triples, quads and boosted T-spin
+clears through routing and into receiver grids, verifying exact 1-, 2-, 4-, 8-
+and 12-deep aligned shafts. They cover sender cancellation, separate shafts
+rising together, FIFO partial cancellation without moving the hole, old per-row
+pattern rejection, and a maximum 128-packet queue within the wire-size limits.
+The feature tests also exercise the application's actual garbage signal handler
+with short and long shafts and an unrelated remote-board target.
+
+The network integration sends actual board-generated 1-, 2-, 4-, 24- and 55-row
+attacks through a spectator host to two boards owned by one remote player.
+Each arrives intact as one packet at its intended board. The host and another
+spectator observe both queues, their exact amounts and hole columns, the full
+hidden buffer and numeric B2B counts. A fifth process deliberately uses protocol 6
+and is disconnected before lobby admission. This is a loopback test, not an
+Internet latency or relay test.
+
+No Windows executable was run. The PCK export and Linux smoke test establish
+resource/script packaging and startup, not Windows driver behavior or frame
+pacing. Human two-wide/four-wide balance testing remains necessary.
+
+## Historical playfield visual proposal — 14 November 2026
+
+Review base: `ad71b2c8cfd37f3035edf4ee27959fb9b32fafe2` (`main`).
+Originally prepared on `visual/playfield-prototype` and subsequently approved
+for inclusion in this source update. The following records the renderer's scope.
+
+### Exact scope
+
+- `scripts/board_view.gd`: use one preloaded, tinted tile for settled blocks,
+  active pieces, hold and next previews; retain the existing piece palette and
+  occupied cells. Increase ghost outline contrast and add a faint interior.
+  Add an inset frame, quieter grid and short ownership-colored corner accents.
+- Enlarge and center the hold and five-piece Up Next previews in inset panels,
+  centering occupied cells rather than each piece's padded rotation box.
+  Shift the playfield right to reserve a separate garbage-meter lane. At panel
+  widths 490 / 410 / 320 px, preview cells are 18 / 15 / 12 px (formerly 10),
+  and the well starts at x = 112 / 100 / 88 px (formerly 68). At 490 × 730,
+  the board's 27.5 px cell size is retained. Narrow layouts trade some board
+  width for larger previews; their 20-row board and all five next pieces fit.
+- Replace the thin garbage strip with a framed, bottom-up meter: one segment
+  per queued row, yellow while delayed, orange in the final 250 ms, red when
+  ready. This 250 ms threshold only controls the presentation color. The
+  existing packet countdown, cancellation and arrival rules are untouched.
+  The meter draws at most 20 segments; overflow is labeled beside it and the
+  footer retains the full total. Sprint hides the meter. Waiting and round
+  transitions clear its state. Frozen remote snapshots do not invent countdowns.
+- Use an accelerating nonlinear amount scale: `height = (min(rows,20)/20)^1.5`.
+  Four rows fill about 9%, eight 25%, twelve 46%, sixteen 72%, and twenty 100%.
+  Each incoming row still owns one segment, but those segments grow in height
+  toward the top. Exact row counts and packet timing colors remain independent
+  of this scale. One-row warnings stay visible at every supported layout size.
+- `assets/block_tile.svg` and its import settings: original 64 × 64 grayscale
+  artwork with a raised face, four bevels, clipped corners and restrained edge
+  highlights. Godot imports this once; no SVG rasterization occurs in `_draw`.
+  No commercial artwork is included or traced.
+- Replace the static row flash with a 110 ms fading, continuous filled band and
+  bright top/bottom edges. Adjacent cleared rows merge into one full-height band:
+  a quad stays four rows tall throughout its fade, with no internal stripes.
+  Nonadjacent clear groups stay separate. Presentation time is local
+  to each view. Repeated snapshots of the same clear do not restart the effect;
+  consecutive clears, round resets, waiting states and frozen terminal snapshots
+  are handled. Network schema and clear/entry timing are unchanged.
+- Cache panel styles and every piece rotation once per script. Invalidate on
+  new snapshot, player/ownership changes, normal Control resize, or clear
+  animation. Stop `_process` after the effect ends. Reassignment of the same
+  remote snapshot object does not invalidate the drawing. Callers should replace
+  snapshots rather than mutate `view.data` in place, as the existing main loop does.
+- `tests/visual_test.gd`: presentation and redraw regression coverage.
+- `tools/capture_visuals.py` and `tools/visual_capture.gd`: reproducible actual
+  Godot before/after captures, including the original renderer loaded from the
+  exact baseline commit. Fixtures freeze time deliberately; they are not an FPS
+  benchmark. Generated `.uid` files accompany the new GDScript files.
+
+No changes to `board.gd`, `main.gd`, input/handling/settings scripts,
+`session.gd`, `project.godot`, audio, or export presets. Gameplay, independent
+per-player handling, 120 Hz simulation, GL Compatibility and multiplayer
+protocol remain as before.
+
+### Verification performed on this proposal
+
+Godot **4.6.3.stable.official.7d41c59c4**, Linux.
+
+| Check | Result |
+| --- | --- |
+| Existing core / garbage / feature tests | 41 / 81 / 62 checks passed |
+| Existing input / settings / controller-drop tests | 67 / 38 / 48 checks passed |
+| Existing input audit / hidden buffer / desktop tests | 214 / 89 / 25 checks passed |
+| New presentation regressions | 65 checks passed |
+| Additional layout / preview / garbage-meter regressions | 33 checks passed |
+| Additional nonlinear meter regressions | 8 checks passed |
+| Total automated assertions | **771 passed, 0 failures** |
+| Four-process loopback integration | Host, two-local-board player, remote player and spectator all passed |
+| Resource import / script parsing | Passed |
+| Windows-preset PCK export | Passed; includes imported tile texture |
+| Exported PCK loaded in Linux Godot, headless, 120 frames | Passed; no errors |
+| Before/after, garbage, clear-phase and three/four-player captures | Passed in real Compatibility rendering |
+| Patch whitespace and application to the baseline | Checked during review packaging |
+
+The original 665 checks and network integration were also run successfully on
+the untouched baseline before implementation. Tests that write preferences used
+isolated temporary user-data directories.
+
+The original 65 presentation checks cover all 28 piece/rotation combinations, draw invalidation
+and idle caching, 480 input/presentation ticks compared with a separate seeded
+simulation across round resets, snapshot immutability, wire-schema validity,
+duplicate/new/frozen clear events, long frame deltas, independent views,
+waiting/round reset behavior, and draw paths at all three existing panel widths
+with hidden cells, ghost, hold/next, garbage, completion and top-out. Band coverage
+also verifies single/double/triple/quad merging, uncleared gaps, unsorted/duplicate
+rows without snapshot mutation, empty clears, and clipping at the hidden buffer
+and field boundaries.
+
+The 33 additional checks cover layout containment and meter/frame separation
+at 320 / 410 / 490 px widths and 480 / 650 / 730 px heights, larger previews,
+the retained large-panel board size, occupied-cell centering for all seven
+pieces, and actual engine packet receive/countdown/partial cancellation/arrival.
+They also cover complete cancellation, independent boards, sprint/waiting reset,
+frozen snapshot immutability, and a maximum 128-packet, 5,120-row network queue
+with an exact total and a bounded 20-slot display buffer.
+
+Eight nonlinear-meter checks cover empty/full endpoints, strictly increasing
+height, accelerating row increments, one-row visibility at all three panel
+widths, independent urgency color changes, and height/count reduction after
+queue cancellation. All 106 visual checks and the existing 665 checks passed
+again after this revision, as did the four-process multiplayer test.
+
+Visual inspection: identical-state comparisons against both the repository
+baseline and the previous visual proposal at 490 px panel width; mixed urgency
+and 24-row overflow queues; actual post-quad states at 0, 55 and 120 ms; four
+320 px panels including completion and top-out; three short 410 × 530 px panels;
+equal-height meter samples with 1 / 4 / 8 / 12 / 16 / 20 incoming rows.
+Bevels, centered previews, ghost, meter and board boundaries remained readable.
+Captures use **Mesa llvmpipe software OpenGL 4.5**; the driver reported
+that changing V-Sync mode is unsupported. These images verify appearance only.
+
+### Performance interpretation and remaining Windows work
+
+Source-level changes remove per-redraw StyleBox construction and calls that
+allocate piece-cell arrays. A solid block now submits one textured rectangle
+instead of three rectangles. The shared tile has a nominal 16 KiB RGBA8 pixel
+payload before driver overhead. A clear submits three primitives per contiguous
+visible group. A small sorted row copy and merged spans are built once per clear,
+never per animation frame. Preview bounds and panel styles are shared; layout
+geometry updates only on resize. The meter uses one reusable 20-byte state
+buffer per view, refreshed from received snapshots, and draws at most 20
+segments regardless of total garbage. Its 21 normalized height boundaries are
+precomputed once and shared; snapshots and redraws do not evaluate the power
+curve or allocate a replacement array. There are no particles, tweens,
+custom shaders, blur, bloom, dynamic lights or offscreen render targets in the
+game renderer.
+
+This is **not a zero-allocation renderer or a measured speedup**. Existing text
+formatting, snapshot construction/deep copies, network serialization and the
+rest of the game remain. The frame adds a small fixed number of primitives;
+the ghost adds a translucent fill. Actual GPU draw calls depend on Godot batching.
+
+No Windows executable was run and no Windows presented-frame timing was
+measured. The PCK smoke test ran in the Linux editor executable; it does not
+establish Windows launch, driver compatibility, input latency or frame pacing.
+The 120 Hz simulation setting is unchanged and is not an FPS measurement.
+
+Before calling the prototype stutter-free, compare baseline and proposal on
+the same Windows PC, resolution, refresh rate and V-Sync settings. Record
+presented-frame times during ordinary movement and repeated single/quad clears,
+with one and four boards. Include first-use and warmed-up runs. Compare p95,
+p99, maximum frame time and over-budget frames around clears, keeping the raw
+timing traces. Visual approval can precede that hardware validation.
+
+### Reproduce
+
+From the project directory with Godot 4.6.3 on PATH:
+
+```sh
+godot --headless --path . --editor --import
+godot --headless --path . --script tests/visual_test.gd
+python3 tests/run_network_tests.py
+python3 tools/capture_visuals.py --output build/visual-review
+godot --headless --path . --export-pack "Windows Desktop" build/Downstack-visual.pck
+godot --headless --main-pack build/Downstack-visual.pck --quit-after 120
+```
+
+The capture command requires a desktop display and the baseline commit in
+local git history; `--headless` cannot produce pixels. It automatically removes
+its temporary baseline script. `GODOT_BIN` selects a different engine path for
+the Python tools. Run the nine older GDScript suites listed below as well; use
+isolated user-data directories for tests that write preferences.
+
+To compare an earlier local renderer instead of the repository baseline, add
+`--baseline-file /path/to/previous_board_view.gd` to the capture command.
+
+Visual convention reference: Nintendo's [historical source link removed]
+describe a left-side incoming meter with one block per garbage row. The artwork
+here is original, and Downstack's existing timing/cancellation rules are used;
+this is not an attempt to reproduce falling-block game 99's complete attack system.
+
+---
 
 Built and checked 12 November 2026 with Godot 4.6.3 Standard and the matching official export templates. The template archive's SHA-512 matched the checksum published with the official release.
 

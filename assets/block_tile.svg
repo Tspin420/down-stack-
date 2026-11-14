@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Original Downstack tile. Grayscale shading is tinted by the existing piece palette. -->
+  <defs>
+    <linearGradient id="face" x1="0" y1="0" x2="0.25" y2="1">
+      <stop offset="0" stop-color="#f7f7f7"/>
+      <stop offset="0.45" stop-color="#d8d8d8"/>
+      <stop offset="1" stop-color="#a4a4a4"/>
+    </linearGradient>
+  </defs>
+  <path d="M4 0H60L64 4V60L60 64H4L0 60V4Z" fill="#303030"/>
+  <path d="M4 1H60L63 4L56 9H8L1 4Z" fill="#fafafa"/>
+  <path d="M1 4L8 9V55L1 60Z" fill="#c4c4c4"/>
+  <path d="M63 4L56 9V55L63 60Z" fill="#707070"/>
+  <path d="M1 60L8 55H56L63 60L60 63H4Z" fill="#565656"/>
+  <path d="M8 8H56V55H8Z" fill="url(#face)"/>
+  <path d="M9 28V9H55" fill="none" stroke="#fff" stroke-opacity="0.4"/>
+  <path d="M10 54H55V35" fill="none" stroke="#333" stroke-opacity="0.28"/>
+</svg>

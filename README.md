@@ -149,9 +149,11 @@ All players share the seeded piece sequence. Practice is endless until top-out; 
 
 Versus defaults to 120 ms line-clear delay plus 100 ms entry delay. Host options include instant clear, 250 ms clear, and a slower classic profile (approximately 583 ms for single, 667 ms for double/triple, 750 ms for quad). Instant clear in versus still retains entry delay. These timings are custom approximations.
 
-Incoming garbage gets a full receiver-side warning, default 1000 ms, adjustable 250–3000 ms. Outgoing strength first cancels the oldest queued garbage. Expired garbage rises only on a non-clearing lock, never during an active piece. Line clearing continues to block it. Network travel time is additional to that warning. Each packet uses one random hole column; three/four-player attacks rotate through surviving opponents.
+Incoming garbage gets a full receiver-side warning, default 1000 ms, adjustable 250–3000 ms. Outgoing strength first cancels the oldest queued garbage. Expired garbage rises only on a non-clearing lock, never during an active piece. Line clearing continues to block it. Network travel time is additional to that warning. Every attack produces one aligned, one-cell-wide shaft whose depth equals its final sent value. A base double sends a one-deep shaft, a triple two, and a falling-block game four. Combo and B2B bonuses deepen that same shaft. Each packet chooses its hole column independently; cancellation shortens its shaft without changing the column. Three/four-player attacks rotate through surviving opponents.
 
-Normal single/double/triple/quad: 0/1/2/4. Full T-spin single/double/triple: 2/4/6. Mini single/double: 0/1. Back-to-back difficult clear: +1. Combo bonus by consecutive clear: 0,0,1,1,2,2,3,3,4,4,4,5, then 5. Perfect clear: 10 total before cancellation. Read RULES_REFERENCE.md for the source audit, combo indexing, and what is custom rather than falling-block game-matched.
+Normal single/double/triple/quad: 0/1/2/4. Full T-spin single/double/triple: 2/4/6. Mini single/double: 0/1. Combos use TETR.IO's multiplier calculation, rounded down, with its logarithmic minimum for singles. Then add the current B2B count as a flat bonus on qualifying quads and T-spin clears. The first qualifying clear establishes the chain at 0; subsequent ones add 1, 2, 3, and so on. Ordinary single/double/triple clears break B2B; non-clearing placements preserve B2B but end the combo. No surge or extra counterattack delay. Perfect clears retain the existing 10-total override before cancellation. Read RULES_REFERENCE.md for the formula, examples, sources and remaining design choices.
+
+Multiplayer protocol 7 carries the numeric B2B counter and one aligned shaft per attack. All participants must use this updated build; older clients are rejected before lobby admission. Each attack keeps one target, one hole column and one packet identity, including attacks above 20 or 40 rows.
 
 ## Limits
 
@@ -172,10 +174,11 @@ godot --headless --path . --script tests/controller_drop_test.gd
 godot --headless --path . --script tests/input_audit_test.gd
 godot --headless --path . --script tests/buffer_test.gd
 godot --headless --path . --script tests/desktop_test.gd
+godot --headless --path . --script tests/visual_test.gd
 python tests/run_network_tests.py
 ```
 
-Create the sibling build folder before exporting. The update/input/settings/input-audit/desktop tests write test preferences and personal bests; use isolated user-data directories when running them. Python 3 is needed only for the four-process loopback test launcher and the optional audio regeneration script, tools/make_audio.py. The release shortcut helper can be regenerated with `python tools/make_shortcut_helper.py "../build/Create Desktop Shortcut.cmd"`. Set GODOT_BIN if the engine is not named godot on PATH.
+Create the sibling build folder before exporting. The update/input/settings/input-audit/desktop tests write test preferences and personal bests; use isolated user-data directories when running them. Python 3 is needed only for the five-process loopback test launcher and the optional audio regeneration script, tools/make_audio.py. The launcher tests four compatible participants and rejection of an old-protocol client. The release shortcut helper can be regenerated with `python tools/make_shortcut_helper.py "../build/Create Desktop Shortcut.cmd"`. Set GODOT_BIN if the engine is not named godot on PATH.
 
 For repository setup, use the source folder as the project root and follow GITHUB_SETUP.md. Windows builds belong in Releases.
 
