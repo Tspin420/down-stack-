@@ -53,7 +53,7 @@ func run():
   axis(0)
   button(false)
   settings.mask(profile,2)
- for rate in [5.0,10.0,15.0,20.0,30.0,45.0,60.0,90.0,120.0]:
+ for rate in [5.0,10.0,15.0,20.0,30.0,45.0,60.0,75.0,90.0,120.0]:
   var b = board(rate)
   for tick in 12: b.step(TICK,Board.SOFT)
   var expected = 1+int(floor(12*TICK*rate/1000.0+0.00001))

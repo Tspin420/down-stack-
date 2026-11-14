@@ -53,19 +53,33 @@ func run():
  var handling = page.handling
  check(handling.soft.get_parent().get_index() == handling.arr.get_parent().get_index()+1,"soft drop is immediately below ARR on Settings")
  check(app.lobby_handling.soft.get_parent().get_index() == app.arr_field.get_parent().get_index()+1,"soft drop is immediately below ARR in the lobby")
- check(handling.values().soft_drop == -1 and handling.soft_value.text == "Default","saved default soft drop is preserved without a gravity toggle")
+ check(handling.values() == {"das_level":0,"arr_level":0,"soft_drop":-1.0},"all three default sliders select zero")
+ for control in [handling,app.lobby_handling]:
+  for slider in [control.das,control.arr,control.soft]:
+   check(slider.min_value == 0 and slider.max_value == 10 and slider.step == 1,"every handling slider uses the same 0–10 range")
+   check(slider.tick_count == control.das.tick_count and slider.ticks_on_borders == control.das.ticks_on_borders and slider.custom_minimum_size == control.das.custom_minimum_size,"soft-drop track and dimensions match DAS and ARR")
+   check(slider.get_parent().get_child(2).text == "0 / 10","each default readout uses the same numeric format")
+ for rate in Settings.SOFT_RATES:
+  var choice = Settings.defaults(-1)
+  choice.soft_drop = rate
+  handling.set_values(choice)
+  check(handling.values().soft_drop == rate,"every saved default, finite and Instant soft-drop choice survives UI loading")
+ handling.set_values(Settings.defaults(-1))
  page.rows[3][0].pressed.emit()
  check(page.capture_action == 3 and page.apply_button.disabled,"binding click starts capture and disables Apply")
  send_key(KEY_T)
  send_key(KEY_T,false)
  check(page._draft().bindings[3][0].code == KEY_T and page.capture_action == -1,"page receives keyboard events for individual remapping")
  handling.soft.value = 2
- check(page._draft().soft_drop == 10 and not handling.default_soft,"moving slider chooses fixed soft drop")
+ check(page._draft().soft_drop == 10 and handling.soft_value.text == "2 / 10","moving slider chooses fixed soft drop with a matching numeric readout")
+ handling.soft.value = 0
+ check(page._draft().soft_drop == -1 and not handling.instant_soft.button_pressed,"soft-drop zero restores default rather than Instant")
+ handling.soft.value = 2
  page.handling.das.value = 10
  page._select_device(-2)
  check(page._draft().bindings[3][0].code == KEY_K and page._draft().soft_drop == -1,"second profile is independent")
  page.handling.instant_soft.button_pressed = true
- check(page._draft().soft_drop == 0 and page.handling.soft_value.text == "Instant","explicit toggle selects Instant")
+ check(page._draft().soft_drop == 0 and page.handling.soft_value.text == "0 / 10","explicit toggle selects Instant without changing the numeric readout")
  check(not page.handling.soft.editable,"Instant mode clearly disables the finite-speed slider")
  page.handling.instant_soft.button_pressed = false
  page.handling.soft.value = page.handling.soft.max_value
@@ -74,14 +88,14 @@ func run():
  page._select_device(-1)
  check(page._draft().bindings[3][0].code == KEY_T and page.handling.soft.value == 2,"switching profiles retains pending edits")
  page.handling.reset_button.pressed.emit()
- check(page._draft().das_level == 5 and page._draft().arr_level == 5 and page._draft().soft_drop == -1,"Settings handling reset changes the current draft")
+ check(page._draft().das_level == 0 and page._draft().arr_level == 0 and page._draft().soft_drop == -1,"Settings handling reset changes the current draft")
  check(page._draft().bindings[3][0].code == KEY_T and page.drafts[app.input_settings.profile_key(-2)].soft_drop == 0,"Settings handling reset keeps custom bindings and the other draft")
  page.cancel_button.pressed.emit()
  check(app.mode == "home" and app.home.visible and not page.visible,"Cancel returns to home")
  check(app.input_settings.profile(-1).bindings[3][0].code == KEY_X and app.input_settings.profile(-2).soft_drop == -1,"Cancel discards edits for all profiles")
  app._sprint()
  app._add_player()
- check(app.input_settings.profiles.has("keyboard_1") and app.input_settings.profiles.keyboard_1.das_level == 5,"adding a player saves even unmodified profile handling")
+ check(app.input_settings.profiles.has("keyboard_1") and app.input_settings.profiles.keyboard_1.das_level == 0,"adding a player saves even unmodified profile handling")
  app._open_settings()
  page._begin_capture(3,1)
  send_key(KEY_ESCAPE)
@@ -108,24 +122,24 @@ func run():
  check(app.room.roster[0].soft_drop == 0 and app.input_settings.profile(-1).soft_drop == 0,"lobby Instant toggle saves and updates existing player")
  app.devices.select(1)
  app.devices.item_selected.emit(1)
- check(app.lobby_handling.soft_value.text == "Default" and app.das_field.value == 5,"lobby device selection restores that profile's handling")
+ check(app.lobby_handling.soft_value.text == "0 / 10" and app.das_field.value == 0,"lobby device selection restores that profile's handling")
  app.lobby_handling.soft.value = 3
  check(app.input_settings.profile(-2).soft_drop == 15 and app.input_settings.profile(-1).soft_drop == 0,"lobby changes stay isolated by profile")
  app.devices.select(0)
  app.devices.item_selected.emit(0)
  app.lobby_handling.reset_button.pressed.emit()
  check(app.room.roster[0].soft_drop == -1 and app.input_settings.profile(-1).soft_drop == -1,"Reset handling restores the default soft drop")
- check(app.das_field.value == 5 and app.arr_field.value == 5 and not app.lobby_handling.instant_soft.button_pressed,"Reset handling restores both speeds and turns off Instant")
+ check(app.das_field.value == 0 and app.arr_field.value == 0 and app.lobby_handling.soft.value == 0 and not app.lobby_handling.instant_soft.button_pressed,"Reset handling restores all sliders to zero and turns off Instant")
  check(app.input_settings.profile(-1).bindings[3][1].code == KEY_T and app.input_settings.profile(-2).soft_drop == 15,"handling reset preserves bindings and the other input profile")
- check(is_equal_approx(app.room.roster[0].das,Handling.das_ms(5)) and is_equal_approx(app.room.roster[0].arr,Handling.arr_ms(5)),"reset immediately updates the selected lobby player")
+ check(is_equal_approx(app.room.roster[0].das,Handling.das_ms(0)) and is_equal_approx(app.room.roster[0].arr,Handling.arr_ms(0)),"reset immediately updates the selected lobby player")
  var reset_disk = ConfigFile.new()
  reset_disk.load("user://preferences.cfg")
- check(Settings.new(reset_disk).profile(-1).das_level == 5 and Settings.new(reset_disk).profile(-1).soft_drop == -1,"lobby reset survives relaunch")
+ check(Settings.new(reset_disk).profile(-1).das_level == 0 and Settings.new(reset_disk).profile(-1).arr_level == 0 and Settings.new(reset_disk).profile(-1).soft_drop == -1,"all zero defaults survive relaunch")
  app.das_field.value = 10
  app.arr_field.value = 8
  app._open_settings()
  page._reset_profile()
- check(page._draft().das_level == 5 and page._draft().arr_level == 5 and page._draft().soft_drop == -1 and page._draft().bindings[3][1].is_empty(),"Reset restores controls and handling in the draft")
+ check(page._draft().das_level == 0 and page._draft().arr_level == 0 and page._draft().soft_drop == -1 and page._draft().bindings[3][1].is_empty(),"Reset restores controls and handling in the draft")
  page._cancel()
  check(app.input_settings.profile(-1).das_level == 10 and app.input_settings.profile(-1).bindings[3][1].code == KEY_T,"Cancel also discards a pending reset")
  app._open_settings()
