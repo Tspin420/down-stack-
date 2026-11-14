@@ -212,7 +212,7 @@ func run():
  b.step(TICK,0,[Board.CW,0,Board.CCW,0])
  check(is_equal_approx(b.pending[0].remaining,1000.0-TICK),"event burst advances garbage warning only once")
  check(is_equal_approx(b.lock_clock,TICK),"event burst advances lock delay only once")
- for rate in [5.0,10.0,15.0,20.0,30.0,45.0,60.0,90.0,120.0]:
+ for rate in [5.0,10.0,15.0,20.0,30.0,45.0,60.0,75.0,90.0,120.0]:
   var steady = fresh_board()
   var noisy = fresh_board()
   steady.handling.soft_drop = rate

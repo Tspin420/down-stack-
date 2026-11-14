@@ -18,7 +18,8 @@ with tempfile.TemporaryDirectory(prefix="downstack-net-") as scratch:
                 [engine, "--headless", "--path", str(root), "--script",
                  "tests/network_test.gd", "--", f"--role={role}", "--port=43971"],
                 stdout=output, stderr=subprocess.STDOUT,
-                env={**os.environ, "XDG_DATA_HOME": str(Path(scratch) / role)},
+                env={**os.environ, "XDG_DATA_HOME": str(Path(scratch) / role),
+                     "APPDATA": str(Path(scratch) / role)},
             )
             processes.append((role, process, output, path))
             time.sleep(0.3)

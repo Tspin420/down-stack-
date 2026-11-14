@@ -1,4 +1,122 @@
-# Validation — Downstack review updates
+# Validation — Downstack 0.9.0
+
+## Release verification — 14 November 2026
+
+Version 0.9.0 brings the approved visual, garbage, menu, handling and gravity
+updates together. `project.godot` explicitly sets VSync mode 0 (disabled),
+maximum render FPS 0 (uncapped), and 120 physics ticks per second. Gameplay
+continues in `_physics_process`; no movement or drop timers were moved to the
+render loop. Snapshot transmission remains 20 Hz. Windows file/product versions
+are 0.9.0.0, and multiplayer protocol remains 8.
+
+Local release checks used Godot **4.6.3.stable.official.7d41c59c4** on Linux:
+
+- All twelve suites passed: **1117 assertions, 0 failures**, including the
+  8192-event input stress sequence. `tools/run_checks.py` isolates preferences
+  on both Windows and Linux.
+- Five-process loopback multiplayer passed, including the protocol 7 rejection,
+  spectator host, independent player inputs and intact large garbage shafts.
+- The official export-template archive passed its published SHA-256 digest.
+- Windows x64 release export passed. The PE header, embedded Downstack product
+  name, 0.9.0.0 version strings, external PCK, seven-size ICO, shortcut helper,
+  licenses and ZIP integrity were inspected.
+- The exported PCK started successfully in Linux Godot. Reading configuration
+  from that actual PCK confirmed **120 Hz / max FPS 0 / VSync 0**.
+- Python build/check helpers compile, the workflow YAML parses, and
+  `git diff --check` passes. The build writes a ZIP checksum and source-commit
+  metadata; an uncommitted local preflight package is not the published asset.
+
+The Windows release workflow runs the regression suites and multiplayer check
+again on its Windows runner, then exports and smoke-tests the actual Windows
+executable before publishing the versioned ZIP. Its result is recorded under
+[Windows release Actions](https://github.com/Tspin420/down-stack-/actions/workflows/release.yml).
+The published asset's `BUILD_INFO.json` identifies its tested source commit.
+
+Physical Windows/controller gameplay, Windows shortcut creation, WAN behavior
+and frame pacing still require target-PC playtesting. Headless startup and
+software-rendered screenshots do not establish real display performance.
+Disabling VSync may expose tearing; an external driver/OS cap can still apply.
+
+The sections below preserve the evidence from earlier reviews. Their statements
+about pending packaging or older protocols describe those earlier checkpoints.
+
+## Menu, lobby, launch and gravity review — 14 November 2026
+
+Review base: `cef3335d18998966c6dae2c0ee74bcd9d078f874` (`main`).
+
+Launch opens the Play menu directly, applies the saved fullscreen preference
+before building controls, and uses Downstack's existing T icon as the engine
+loading splash. Local match, Sprint and Network play lead to separate setup
+screens. Host/join controls retain direct address/UDP-port networking; pending
+connections can be canceled and failed attempts keep their address for retry.
+
+The lobby has four player cards (one in Sprint), local Edit/Remove actions,
+per-input handling, host-only Start and Match rules, a scrolling player editor,
+and a waiting message for clients. Existing player settings and game rules are
+preserved. Settings returns to the screen it was opened from. Keyboard focus,
+D-pad navigation and A/B menu actions work independently of gameplay bindings.
+Starting a match releases focus and disables header keyboard focus; result
+buttons regain it after a round. Menu artwork is static and shares the existing
+beveled tile. Neon pink is the primary accent, with blue and green mode badges
+and player-card borders on dark violet panels. The existing app icon is retained.
+Gravity now follows the March 2009 guideline's level 1–15 formula, with one level
+per ten cleared lines and level 15 held for continuing versus matches. The former
+40 ms minimum interval is removed. Sprint stays at starting gravity. Protocol 8
+rejects older builds so everyone uses the same gravity curve; attack rules remain.
+
+The gravity/default toggle and Standard/Fast buttons are removed. Reset handling
+restores only the selected input’s DAS, ARR and default soft drop; bindings and
+other profiles remain intact. Lobby resets save immediately and update the
+joined player, while Settings resets remain a cancellable draft. Existing saved
+default, finite and Instant soft-drop behavior is retained.
+
+DAS, ARR and soft drop share the same 0–10 track and numeric readout; 0 selects
+the existing default on each control. Custom speeds keep their previous values,
+with an added 75 cells/second finite step. Reset handling puts all three at 0.
+Default soft drop at zero matches the 20× normal-gravity rule in the publicly
+reproduced March 2009 guideline (sections 5.5 and 7.1); exact falling-block game timing and the
+latest private guideline remain unverified. Default soft drop now follows the
+corrected gravity curve. Instant stays a separate toggle and retains lock delay.
+Online rooms show a CURRENTLY SPECTATING banner whenever the local computer owns no player slots,
+in the lobby, its Settings page and the match. No extra role selector is added.
+
+### Verification
+
+Godot **4.6.3.stable.official.7d41c59c4**, Linux, with isolated preferences.
+
+- All **1064 non-menu assertions** passed, including settings persistence,
+  fullscreen restoration, input stress, controller disconnection and rendering.
+  Six additional settings checks cover Reset handling, persistence, draft
+  cancellation and preservation of custom bindings and other profiles.
+  The slider follow-up adds 40 checks for default timing, shared slider layout,
+  zero/default versus Instant, every saved soft-drop rate through the UI, and 75 cells/second cadence.
+  The guideline verification adds five default release/lock/continued-hold checks.
+  The new gravity suite adds **90 checks** for every documented level, actual
+  falling distance, fractional and multiple-cell ticks, level boundaries, the
+  versus cap, fixed Sprint gravity, default/Instant drop, release and lock delay.
+  All twelve suites were rerun after the gravity implementation changed.
+- **53 menu assertions** passed: keyboard/D-pad/A/B navigation, page focus,
+  Settings return, empty address, cancellation and failure, roster add/edit/remove,
+  independent handling, full-lobby behavior, remote slot ownership, host/client
+  controls, Sprint setup, Start, hard-drop isolation, results and best-time refresh.
+  Ten additional checks cover spectator hosts/clients, adding/removing multiple
+  local players, Settings, match entry and clearing the banner on leaving.
+  **1117 total assertions, 0 failures.**
+- Five-process loopback multiplayer passed: four compatible participants and
+  deliberate rejection of a protocol 7 client by the protocol 8 host.
+- Actual Compatibility-rendered menu, Network, local lobby, expanded rules,
+  Settings and Sprint screens were inspected. Spectator lobby and match captures
+  include the automatic banner. Main menu, local lobby and spectator lobby were also
+  checked at **960 × 600**, with the default captures at **1280 × 800**.
+  Native Enter-to-lobby, mouse Join and Enter-to-match were exercised.
+- Windows-preset resource export and a 120-frame Linux headless PCK startup
+  passed. New GDScript UIDs are included and `git diff --check` is clean.
+
+`tools/menu_capture.gd` reproduces the screenshots using actual controls; run it
+with isolated preferences because it saves sample player setup. These captures
+use Mesa software rendering and are **not a frame-pacing benchmark**. Controller
+button events were simulated; physical Windows/controller testing and a Windows
+executable release remain pending.
 
 ## Approved garbage rules update — 14 November 2026
 

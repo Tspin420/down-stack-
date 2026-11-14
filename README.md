@@ -1,13 +1,19 @@
-# Downstack 0.8.0
+# Downstack 0.9.0
 
 A playable falling-block game with adjustable handling, delayed garbage, local multiplayer, player-hosted rooms, and a 40-line sprint. This is the next version of Counterfall, renamed Downstack. Original project code, synthesized audio, and a new T-piece icon; no falling-block game Ultimate files are needed.
+
+[Download the latest Windows release](https://github.com/Tspin420/down-stack-/releases/latest). Choose the **Downstack_Windows_0.9.0.zip** asset; GitHub’s source-code ZIP is for development.
 
 ## Start on Windows
 
 1. Extract the entire ZIP into a normal folder.
 2. Keep **Downstack.exe and Downstack.pck together**, then open Downstack.exe. No installer, administrator rights, account, or separate Godot installation is required.
-3. Choose Local match, 40-line sprint, or Host lobby. Enter your name, select a keyboard layout or connected controller, set your handling, then click Add / update player.
-4. Start the round. Add a second player on a different input device for local versus.
+3. Launch opens the Play menu. Choose **Local match**, **40-line sprint**, or **Network play**. In the lobby, enter your name, choose a keyboard layout or connected controller, set your handling, then select **Join as player** (or **Use this player** for Sprint).
+4. Select **Start practice** for one player or **Start match** for local versus. Add each player on a different input. Use **Edit** or **Remove** on a player card, and **Match rules** beside Start to adjust host settings.
+
+Menus use neon pink accents with blue and green borders on the mode badges and player cards. The existing app icon is retained. DAS, ARR and soft drop share matching 0–10 sliders: **0 restores the default** for each control, while 1–10 retain the custom speed range.
+
+Navigate menus with arrow keys or the controller D-pad; Enter / the south face button (A / Cross) selects, and Esc / the east face button (B / Circle) goes back. The saved fullscreen choice is restored during startup. The T icon appears while resources load; there is no extra press-to-start screen.
 
 **Desktop shortcut:** open Settings and click **Create desktop shortcut**, or double-click **Create Desktop Shortcut.cmd** in the extracted game folder. This creates Downstack.lnk on your Windows desktop with the embedded T icon. It uses your actual Desktop location, including a redirected/OneDrive Desktop. Extract the entire ZIP first and keep the game folder in place afterward; the shortcut points there. Run the button/helper again after moving or updating the game. An existing Downstack game shortcut is updated. A different application’s shortcut with the same name is preserved and reported as a conflict. Downstack.ico is also included for manual icon customization.
 
@@ -17,63 +23,21 @@ If shortcut creation is restricted by your Windows configuration, right-click Do
 
 **Publisher warning:** This is still an unsigned development build. Renaming it and adding an icon do not create a verified publisher or guarantee that Windows SmartScreen stops warning. No certificate, security-setting change, or antivirus exception is installed. Trusted release signing needs a real signing identity and certificate; even newly signed applications can receive reputation warnings. The Windows executable has been exported and inspected, but not run on Windows hardware here. See VALIDATION.md.
 
-## New in 0.8
+## New in 0.9
 
-- Visible fullscreen button, immediate saved Display setting, reliable reserved F11 handling before key-binding capture, and remembered startup mode.
-- Fullscreen expands the layout to the screen; switching back restores the prior window bounds or maximized state. Embedded dialogs remain visible in fullscreen.
-- Windows desktop-shortcut button plus a double-click helper, both using the same included script. The shortcut targets the extracted EXE, uses its folder as the working directory, and shows the T icon. No administrator rights or execution-policy change.
-- **665 automated checks passed**, plus the four-process network test. Fullscreen transitions and Settings/Sound interaction were visually checked on Linux. Windows shortcut creation and Windows-specific display behavior still need target-PC testing.
-- Protocol remains 4, compatible with 0.7.
+- **VSync off, no render FPS cap, fixed 120 Hz gameplay.** Rendering speed does not change movement, gravity or lock timing. Remote boards receive snapshots at 20 Hz. Driver or operating-system settings may still impose synchronization or a cap; tearing can be visible with VSync disabled.
+- Neon menus, dedicated host/join setup, player cards, keyboard/controller navigation, and an automatic spectator banner. The existing T icon appears while loading.
+- Matching 0–10 handling sliders, zero/default presets, per-input Reset handling and a separate Instant soft-drop option.
+- Historical guideline gravity for levels 1–15, fixed starting gravity in Sprint, and 20× gravity for default soft drop. See SOFT_DROP_REFERENCE.md for the documented source and versus continuation policy.
+- Larger Hold/Next previews, adjusted board position, beveled blocks, continuous line-clear effects and the nonlinear garbage meter.
+- TETR.IO-style combos plus the custom growing flat B2B bonus; one shaft per attack, one-for-one cancellation, combo blocking and intact large attacks. See RULES_REFERENCE.md.
+- **Protocol 8: all players and spectators must update.** Older clients are rejected before joining.
 
-## Included from 0.7
+See [RELEASE_NOTES.md](RELEASE_NOTES.md) for this update, [CHANGELOG.md](CHANGELOG.md) for earlier releases and [VALIDATION.md](VALIDATION.md) for checks and remaining hardware tests.
 
-- **20 hidden buffer rows above the 20 visible rows.** I-pieces can rotate and kick above the skyline, and all their hidden cells remain stored and collision checked.
-- Fixed a reproduced premature top-out: an I-piece with three cells above the skyline and one visible could fit, but locking it killed the player and discarded the upper cell. That legal partial-above lock now survives. Fully hidden locks, blocked spawns and true buffer overflow still end the game.
-- Updated rendering, garbage movement, clearing and multiplayer snapshots for the full 40-row field. Spawn height relative to the visible board, floor, handling and lock delay are retained.
-- **Online compatibility changed:** all players and spectators need version **0.7 / protocol 4**. Older 22-row snapshots are incompatible.
-- All **640 checks**, including 89 new buffer checks, passed, plus four-process hidden-row replication. See BUFFER_NOTES.md.
-- Added source ignore rules and GITHUB_SETUP.md. The `source` folder is ready to use as a GitHub repository root; no hosted repository has been created.
+## Updating an existing installation
 
-## Included from 0.6
-
-- Captures rapid key/controller transitions in order: short taps, double taps and opposite-direction changes survive between simulation ticks. Overlapping primary/alternate controls still count as one held action.
-- Polling repairs a missed press/release callback when the current device state is available. Focus loss, Sound settings and controller loss clear pending input, movement charge and early rotation buffers. Held inputs need release before reuse after suspension.
-- Local games pause on focus loss, while Sound is open, or if an assigned controller disconnects. Online games continue; suspended local controls remain neutral. A disconnected controller must be reassigned in the lobby; its runtime ID cannot silently reclaim a live board after reconnecting. Use **Back to lobby** as host, or leave and rejoin as a client.
-- Fixed one rotation being applied twice on the exact piece-entry tick. Discrete actions pressed during the countdown do not fire at GO; held movement/soft drop can carry through. OS key repeat cannot become a fresh action after refocusing.
-- Added **214 input reliability checks**, including an 8,192-event deterministic stress sequence. All **551 checks** and the four-process network test passed. See INPUT_AUDIT.md for reproduced failures, recovery behavior and hardware limits.
-
-## Included from 0.5
-
-- Fixed a reproduced controller soft-drop timing bug: brief releases/re-presses can no longer grant repeated bonus steps and make a finite speed appear instant.
-- **Instant soft drop is now a separate toggle.** The slider below ARR stays finite, from 5 to 120 cells/second. Existing saved Instant choices remain explicitly enabled; the default stays 20× gravity.
-- Each action now has clearly labeled **Change** and **+ Bind input** buttons. Open Settings, choose the keyboard player or controller, click the action, press your desired input, then Apply & back. All eight actions can be bound individually.
-- Invalid soft-drop values no longer fall through to Instant.
-- Added a source comparison of official falling-block game documentation and TETR.IO: see SOFT_DROP_REFERENCE.md. Their multiplier settings are not interchangeable with fixed cells/second.
-
-## Included from 0.4
-
-- Dedicated **Settings** page, available from the main menu and lobby, with click-to-bind primary and alternate inputs for every action.
-- **Soft-drop slider directly below ARR**, both on Settings and in the lobby. Slide through fixed speeds from 5 to 120 cells/second. Instant has its own toggle. The **20× gravity (default)** toggle restores gravity-scaled soft drop; moving the slider selects a fixed speed.
-- Separate saved DAS, ARR, soft drop and bindings for each input profile. Existing 0.3 controls and soft-drop choices are retained, with old global DAS/ARR values used until a profile has its own saved handling.
-- Apply & back saves all edited profiles; Cancel discards pending Settings edits. Lobby slider changes save immediately and update existing local player slots for the next round.
-- Settings stays open when the online roster changes. A host-started round closes it and uses the last saved settings.
-
-## Included from 0.3
-
-- Remappable controls for Keyboard 1, Keyboard 2, and connected controllers. Each action has a primary and alternate input; buttons, D-pad, stick directions and analog triggers are supported.
-- Independent saved soft-drop choices per input profile: **20× gravity (default)**, fixed 5/10/15/20/30/45/60/90/120 cells per second, or Instant.
-- Fixed the accumulated-gravity burst: pressing soft drop no longer spends time already accumulated at normal gravity to drop many cells at once.
-- Restart sprint can also be remapped, so assigning R to another action no longer triggers the old global restart shortcut.
-- Existing player slots pick up saved soft-drop changes in the lobby. Each player's selected speed is carried through online room setup. Versions 0.3–0.6 used network protocol 3. Version 0.7 upgrades to protocol 4 for the expanded field; all participants must update.
-
-## Included from 0.2
-
-- Hold preview on the left; next queue on the right.
-- 18 sound effects and an original ambient music loop. The Sound button provides separate effects/music levels; set either to 0 to mute. Volume saves locally.
-- 40-line sprint with countdown, elapsed time, locally saved personal best, result screen, and R to retry.
-- Independent DAS and ARR sliders from 1 to 10. Higher numbers are faster; 5 is the previous build's baseline and 10 halves both baseline delays.
-- Downstack name, T-piece app icon, Windows version information, and separate project-data file.
-- Garbage-rule source audit and 81 regression checks. The attack amounts already matched the documented reference values, so those amounts are unchanged.
+Close Downstack and extract the new ZIP into a new folder. Keep all packaged files together. Controls, volume, fullscreen preference and Sprint records are stored separately in `%APPDATA%\Godot\app_userdata\Downstack` and survive changing the game folder. Run the desktop-shortcut helper again from the new folder if you used a shortcut. Everyone in an online room needs the same current build.
 
 ## Handling
 
@@ -81,6 +45,7 @@ DAS is the wait before a held direction starts repeating. ARR is the interval be
 
 | Level | DAS, ms | ARR, ms |
 | --- | ---: | ---: |
+| 0 — default | 166.67 | 33.33 |
 | 1 | 300.00 | 100.00 |
 | 2 | 266.67 | 83.33 |
 | 3 | 233.33 | 66.67 |
@@ -92,9 +57,9 @@ DAS is the wait before a held direction starts repeating. ARR is the interval be
 | 9 | 100.00 | 20.00 |
 | 10 — fastest | 83.33 | 16.67 |
 
-Level 10 gives twice the repeat rate and half the initial repeat wait of level 5. The baseline is the previous prototype's reference falling-block game-inspired approximation, not a newly measured frame-perfect falling-block game timing claim. The simulation runs at 120 Hz. DAS falls on fixed ticks; intermediate ARR values retain their fractional remainder so adjacent slider levels have distinct average repeat rates.
+Zero is a default preset, separate from the custom 1–10 range; custom level 5 has the same timing. Existing saved levels retain their physical speeds. Level 10 gives twice the repeat rate and half the initial repeat wait of the default. The baseline is the previous prototype's reference falling-block game-inspired approximation, not a newly measured frame-perfect falling-block game timing claim. The simulation runs at 120 Hz. DAS falls on fixed ticks; intermediate ARR values retain their fractional remainder so adjacent slider levels have distinct average repeat rates.
 
-Handling applies per input profile. Select the keyboard or controller before changing values. Lobby sliders save immediately and update that device’s existing local player slot; use Add / update player when adding the slot or changing its name. On Settings, edits remain pending until Apply & back. The last player name is also saved. The app attempts to import the old Counterfall preferences when no Downstack preferences file exists. Saving new controls or sound settings does not overwrite them with legacy settings.
+Handling applies per input profile. Select the keyboard or controller before changing values. Lobby sliders save immediately and update that device’s existing local player slot; use Join as player to add a slot or Update player to change its name. **Reset handling** puts all three sliders at 0, restoring default DAS/ARR and soft drop for the selected input without changing its bindings, name or other profiles. In the lobby it saves immediately; on Settings it updates the draft until Apply & back. The last player name is also saved. The app attempts to import the old Counterfall preferences when no Downstack preferences file exists. Saving new controls or sound settings does not overwrite them with legacy settings.
 
 ## 40-line sprint
 
@@ -104,25 +69,25 @@ Choose 40-line sprint, add one player, and start. The clock begins after the thr
 
 Up to four active players may share one room, with any mix of local and remote players. A computer may own two keyboard players plus gamepad players within that four-player total. Menus use the mouse; keyboard rollover depends on your keyboard.
 
-**LAN:** Select Host lobby. Other computers enter the host's LAN address and matching UDP port, then Join lobby. Add players on each computer. The host starts the round.
+**LAN:** Open **Network play → Create lobby**. Other computers open **Network play**, enter the host's LAN address and matching UDP port, then select **Join lobby**. A pending connection can be canceled; failed connections keep the address for retry. Add players on each computer. The host starts the round.
 
 **Internet:** Direct connections use the host's reachable address. The host's network must route the selected UDP port (default 42970) to that computer. Firewall permission and router port forwarding may be needed. There is no automatic NAT traversal or relay; carrier-grade NAT may prevent direct hosting.
 
-**Host as viewer:** Leave your player slots empty. Remote players join and add themselves; you can start/end rounds and watch without playing. Remote spectators likewise join without adding a player. The room accepts twelve remote computer connections plus the host, with four active players total.
+**Host as viewer:** Leave your player slots empty. Remote players join and add themselves; you can start/end rounds and watch without playing. Remote spectators likewise join without adding a player. A **CURRENTLY SPECTATING** banner appears at the top whenever you have no player slot in an online room, including while watching a match. Adding a local player hides it; removing your last local player restores it. No extra spectator button is needed. The room accepts twelve remote computer connections plus the host, with four active players total.
 
-The host can end a round to return everyone to the lobby. Leaving as host closes the room; there is no host migration. A disconnected player's boards forfeit. Late joiners can watch, then add players in the next lobby. All participants must use network protocol 4 (versions 0.7 and 0.8). Earlier builds are incompatible because they exchange only 22 board rows.
+The host can end a round to return everyone to the lobby. Leaving as host closes the room; there is no host migration. A disconnected player's boards forfeit. Late joiners can watch, then add players in the next lobby. All participants must use this updated protocol 8 build. Earlier clients are rejected before entering the lobby so different gravity curves cannot share a match.
 
 ## Remapping and soft drop
 
-Open **Settings** in the header, or **Rebind each key / button** in a lobby. Select the input profile on the left. Handling sliders appear below it in this order: DAS, ARR, soft drop. Individual action bindings are on the right. Click **Change** or **+ Bind input** beside any action, then press the desired key, controller button, D-pad direction, trigger, or stick direction. For an analog input, start at neutral, then press/move it deliberately. Keyboard bindings are individual physical keys, not modifier chords.
+Open **Settings** in the header, or **Change bindings** in a lobby. Select the input profile on the left. Handling sliders appear below it in this order: DAS, ARR, soft drop. Individual action bindings are on the right. Click **Change** or **+ Bind input** beside any action, then press the desired key, controller button, D-pad direction, trigger, or stick direction. For an analog input, start at neutral, then press/move it deliberately. Keyboard bindings are individual physical keys, not modifier chords.
 
-Reusing an input swaps its previous binding into the edited slot, preventing one input from silently firing two actions. The × buttons clear bindings. Every gameplay action must retain at least one binding before Apply & back is enabled; restart is optional. Apply & back saves all profiles edited on the page and returns to the previous screen. Cancel discards pending controls/handling edits across all profiles; Display changes are saved immediately and remain in effect. Reset this profile restores its default controls, level-5 DAS/ARR, and 20× gravity soft drop; Apply & back commits the reset. Esc cancels capture; outside capture it cancels the page. F11 remains reserved for fullscreen. Shared keys across the two keyboard profiles are flagged because they affect both players if both join.
+Reusing an input swaps its previous binding into the edited slot, preventing one input from silently firing two actions. The × buttons clear bindings. Every gameplay action must retain at least one binding before Apply & back is enabled; restart is optional. Apply & back saves all profiles edited on the page and returns to the previous screen. Cancel discards pending controls/handling edits across all profiles; Display changes are saved immediately and remain in effect. Reset this profile restores its default controls, level-0 DAS/ARR, and level-0 (20× gravity) soft drop; Apply & back commits the reset. Esc cancels capture; outside capture it cancels the page. F11 remains reserved for fullscreen. Shared keys across the two keyboard profiles are flagged because they affect both players if both join.
 
 Settings are local and persist across launches. Keyboard profiles are separate. Controller profiles use the controller's reported model/GUID, with connection order separating identical controllers. A different connection order for identical pads may change which saved profile they use. Controller hotplug updates the selector and cancels any capture. A disconnected controller is blocked for the rest of that round, even if the same runtime ID reconnects. Return to the lobby and explicitly select/add the intended controller before restarting.
 
-The default **20× gravity** setting divides the current normal fall interval by 20. At the sprint's 1 row/second gravity this gives 20 cells/second; in versus it increases with gravity. This follows the historical 2009 guideline reference described in RULES_REFERENCE.md, not a claim of current official certification.
+Normal gravity uses the public March 2009 guideline's curve: `1000 × (0.8 − (L − 1) × 0.007)^(L − 1)` milliseconds per cell. Versus advances one level per ten cleared lines, then holds level 15 for long matches. Sprint stays at level 1. Default soft drop at slider **0** is **20× this gravity**, with normal lock delay retained; the separate **Instant soft drop** toggle reaches the floor immediately. The reference is the historical guideline, not verified falling-block game timing or the latest private specification. See SOFT_DROP_REFERENCE.md for details and tests.
 
-The soft-drop slider gives a predictable minimum descent speed: 5, 10, 15, 20, 30, 45, 60, 90 or 120 cells/second. They never slow a faster normal gravity. The separate Instant soft drop toggle moves the active piece to the floor in one simulation tick and retains the normal lock delay. Holding it does not reset that delay forever. Hard drop still lands and locks immediately at every soft-drop setting. Finite soft drop responds immediately when its cadence permits, then repeats at the selected interval. Brief releases/re-presses cannot exceed that rate. Releasing it returns to normal gravity without a stored-time burst.
+Soft-drop level 0 selects the existing 20× gravity default. Levels 1–10 select fixed minimum descent speeds: 5, 10, 15, 20, 30, 45, 60, 75, 90 or 120 cells/second. The added 75 cells/second step fills the tenth finite position without changing any saved rate. These rates never slow a faster normal gravity. All three sliders use the same track, thumb, dimensions and numeric readout; the soft-drop readout tooltip identifies its actual rate. The separate Instant soft drop toggle moves the active piece to the floor in one simulation tick and retains the normal lock delay. Holding it does not reset that delay forever. Hard drop still lands and locks immediately at every soft-drop setting. Finite soft drop responds immediately when its cadence permits, then repeats at the selected interval. Brief releases/re-presses cannot exceed that rate. Releasing it returns to normal gravity without a stored-time burst.
 
 Changes apply to the next round. Remapping is disabled during a round and automatically closes if the online host starts a match. Already-added local slots receive new soft-drop settings when you save Settings or adjust a lobby slider; no remove/re-add step is needed. Existing sprint personal bests remain stored; different handling settings can affect comparisons.
 
@@ -153,7 +118,7 @@ Incoming garbage gets a full receiver-side warning, default 1000 ms, adjustable 
 
 Normal single/double/triple/quad: 0/1/2/4. Full T-spin single/double/triple: 2/4/6. Mini single/double: 0/1. Combos use TETR.IO's multiplier calculation, rounded down, with its logarithmic minimum for singles. Then add the current B2B count as a flat bonus on qualifying quads and T-spin clears. The first qualifying clear establishes the chain at 0; subsequent ones add 1, 2, 3, and so on. Ordinary single/double/triple clears break B2B; non-clearing placements preserve B2B but end the combo. No surge or extra counterattack delay. Perfect clears retain the existing 10-total override before cancellation. Read RULES_REFERENCE.md for the formula, examples, sources and remaining design choices.
 
-Multiplayer protocol 7 carries the numeric B2B counter and one aligned shaft per attack. All participants must use this updated build; older clients are rejected before lobby admission. Each attack keeps one target, one hole column and one packet identity, including attacks above 20 or 40 rows.
+Multiplayer protocol 8 requires the updated gravity curve and retains the numeric B2B counter and one aligned shaft per attack. All participants must use this updated build; older clients are rejected before lobby admission. Each attack keeps one target, one hole column and one packet identity, including attacks above 20 or 40 rows.
 
 ## Limits
 
@@ -166,6 +131,7 @@ The source folder contains the editable Godot project. Open project.godot with G
 ```text
 godot --headless --path . --export-release "Windows Desktop" ../build/Downstack.exe
 godot --headless --path . --script tests/core_test.gd
+godot --headless --path . --script tests/gravity_test.gd
 godot --headless --path . --script tests/garbage_test.gd
 godot --headless --path . --script tests/update_test.gd
 godot --headless --path . --script tests/input_test.gd
@@ -175,11 +141,20 @@ godot --headless --path . --script tests/input_audit_test.gd
 godot --headless --path . --script tests/buffer_test.gd
 godot --headless --path . --script tests/desktop_test.gd
 godot --headless --path . --script tests/visual_test.gd
+godot --headless --path . --script tests/menu_test.gd
 python tests/run_network_tests.py
 ```
 
-Create the sibling build folder before exporting. The update/input/settings/input-audit/desktop tests write test preferences and personal bests; use isolated user-data directories when running them. Python 3 is needed only for the five-process loopback test launcher and the optional audio regeneration script, tools/make_audio.py. The launcher tests four compatible participants and rejection of an old-protocol client. The release shortcut helper can be regenerated with `python tools/make_shortcut_helper.py "../build/Create Desktop Shortcut.cmd"`. Set GODOT_BIN if the engine is not named godot on PATH.
+Create the sibling build folder before exporting. The update/input/settings/input-audit/desktop/menu tests write test preferences and personal bests; use isolated user-data directories when running them. Python 3 is needed only for the five-process loopback test launcher and the optional audio regeneration script, tools/make_audio.py. The launcher tests four compatible participants and rejection of an old-protocol client. The release shortcut helper can be regenerated with `python tools/make_shortcut_helper.py "../build/Create Desktop Shortcut.cmd"`. Set GODOT_BIN if the engine is not named godot on PATH.
 
-For repository setup, use the source folder as the project root and follow GITHUB_SETUP.md. Windows builds belong in Releases.
+To reproduce the actual menu screenshots with a desktop display and isolated preferences:
+
+```text
+godot --path . --rendering-method gl_compatibility --audio-driver Dummy --script res://tools/menu_capture.gd -- --output=/absolute/path/to/captures
+```
+
+This fixture writes sample player preferences. Use an isolated user-data directory (for example, `XDG_DATA_HOME` on Linux); it is a visual fixture, not a performance benchmark.
+
+For the repeatable test/package commands and automated Windows release workflow, see [GITHUB_SETUP.md](GITHUB_SETUP.md). Windows builds belong in Releases.
 
 Project code is supplied under MIT. Godot engine/third-party notices are in licenses. The icon was generated for Downstack; audio was synthesized for this project, with its generation source included.

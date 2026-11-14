@@ -6,7 +6,7 @@ const Board = preload("res://scripts/board.gd")
 class LegacySession:
  extends "res://scripts/session.gd"
  func _ready():
-  multiplayer.connected_to_server.connect(func(): _hello.rpc_id(1,6))
+  multiplayer.connected_to_server.connect(func(): _hello.rpc_id(1,7))
 
 var room
 var role = "host"
@@ -44,7 +44,7 @@ func _setup():
 
 func _lobby():
  if role == "legacy":
-  fail("protocol 6 client was admitted to a protocol 7 lobby")
+  fail("protocol 7 client was admitted to a protocol 8 lobby")
   return
  if role == "player" and not room.roster.any(func(p): return p.owner == room.local_id()):
   room.change_player(-1,"Local one","Keyboard",166.67,33.33,false,5.0)
@@ -89,7 +89,7 @@ func _legacy_rejected():
  if elapsed >= 2.0:
   fail("old-client disconnect was not prompt protocol rejection")
   return
- print("legacy NETWORK PASS: protocol 6 rejected before lobby admission")
+ print("legacy NETWORK PASS: protocol 7 rejected before lobby admission")
  quit(0)
 
 func make_attack(cleared: int, previous_b2b: int = -1) -> int:
@@ -112,7 +112,7 @@ func _process(dt):
   fail("timeout")
   return false
  if role == "legacy":
-  if elapsed >= 2.0: fail("protocol 6 client was not rejected")
+  if elapsed >= 2.0: fail("protocol 7 client was not rejected")
   return false
  if not began: return false
  for id in local_boards: room.post_state(id,local_boards[id].snapshot())

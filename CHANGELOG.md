@@ -1,4 +1,38 @@
-# Unreleased
+# Downstack 0.9.0 — 14 November 2026
+
+VSync is explicitly disabled and rendering has no FPS cap. Gameplay remains on
+the independent 120 Hz physics loop; remote snapshots remain 20 Hz. Added a
+versioned Windows ZIP builder, source-commit metadata, SHA-256 checksum and a
+Windows release workflow that runs regression tests and exported-game startup
+before publishing.
+
+Launch now opens a focused Play menu with Local match, 40-line sprint and
+Network play. The T icon replaces the engine splash; saved fullscreen is applied
+before the menu is built, with no extra press-to-start step. Host/join fields
+move to a dedicated Network page with cancellable connections. The lobby uses
+four player cards, Edit/Remove actions, a separate player setup panel, and
+Start/Match rules controls. Keyboard and controller focus work through menus,
+settings and results; gameplay releases focus to protect hard-drop inputs.
+
+Menus now use neon pink, blue and green borders on a dark violet palette.
+Removed the gravity toggle and Standard/Fast presets; Reset handling restores
+only the selected input’s DAS, ARR and soft drop. Online rooms automatically
+show CURRENTLY SPECTATING when no local player slot is present, including in
+the match view. No additional role-selection button is needed.
+
+DAS, ARR and soft drop now share identical 0–10 sliders and numeric readouts.
+Zero selects the existing default on every control; Reset handling returns all
+three to zero. Custom 1–10 DAS/ARR speeds and saved soft-drop rates are retained;
+a 75 cells/second choice fills the tenth finite soft-drop position. Instant stays
+an explicit toggle and turning it off restores the selected slider position.
+Normal gravity now follows the public March 2009 guideline's level 1–15 curve,
+replacing the gentler custom curve and 40 ms minimum interval. Versus advances
+every ten lines and holds at level 15 for continuing matches. Sprint stays at
+starting gravity. Default soft drop at zero runs at 20× that gravity. The separate
+Instant option reaches the floor immediately and retains lock delay. Ninety new
+gravity checks cover the curve, fast ticks, level boundaries, Sprint, release,
+default and Instant lock delay, and the versus cap.
+Exact falling-block game timing and the latest private guideline remain unverified.
 
 Enlarged and centered Hold/Next previews, shifted the playfield right, and added
 the nonlinear incoming-garbage meter with separate amount and urgency cues.
@@ -13,11 +47,13 @@ Large attacks now reach their intended receiver intact instead of being dropped
 by the former 20-row router and 40-row receiver cutoffs. Perfect clears remain
 10 total before cancellation.
 
-Multiplayer protocol 7 carries numeric B2B state and the expanded attack range.
-All players and spectators need the updated build. All 923 automated checks and
+Multiplayer protocol 8 requires the updated gravity curve and retains numeric
+B2B state and the expanded attack range. All players and spectators need the
+updated build. All 1117 automated checks and
 the five-process multiplayer test passed on Linux/Godot 4.6.3, including old-client
-rejection. Resource export and startup passed; Windows runtime and frame-pacing
-validation remain pending. See RULES_REFERENCE.md and VALIDATION.md.
+rejection. Resource export and startup passed; physical Windows/controller playtesting and frame-pacing
+validation remain pending. The Windows release workflow separately runs the
+regression suites and an exported-executable headless startup before publication. See RULES_REFERENCE.md and VALIDATION.md.
 
 # Downstack 0.8.0
 
