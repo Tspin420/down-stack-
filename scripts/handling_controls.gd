@@ -18,7 +18,7 @@ func _ready():
  soft_value = soft.get_parent().get_child(2)
  das.tooltip_text = "0 = default. Custom speeds: 1 = slow, 5 = baseline, 10 = twice as fast."
  arr.tooltip_text = das.tooltip_text
- soft.tooltip_text = "0 = default. Custom speeds 1–10: 5, 10, 15, 20, 30, 45, 60, 75, 90 or 120 cells/sec. Instant is a separate option."
+ soft.tooltip_text = "0 = guideline default (20× gravity). Custom speeds 1–10: 5, 10, 15, 20, 30, 45, 60, 75, 90 or 120 cells/sec. Instant is a separate option."
  instant_soft = CheckButton.new()
  instant_soft.text = "Instant soft drop"
  instant_soft.focus_mode = Control.FOCUS_ALL

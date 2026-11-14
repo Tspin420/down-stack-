@@ -1,12 +1,16 @@
-# Soft-drop reference — Downstack
+# Gravity and soft-drop reference — Downstack
 
 Checked 12 November 2026. This audit distinguishes published behavior, numerical settings, and parameters that still need direct measurement. It does not claim that every modern falling-block game game has identical timing.
 
-## Default verified — 14 November 2026
+## Guideline defaults — 14 November 2026
 
 The default at slider **0** follows the publicly reproduced **March 2009 falling-block game Design Guideline**, sections **5.5** (page 17) and **7.1** (page 20): soft-drop interval = normal fall interval / 20. Section 7.1 presents this as a suggested speed. At Downstack's starting and Sprint gravity, that means **20 cells/second**, or **50 ms per cell**; it scales with normal gravity in versus. This is a historical guideline baseline, not a verified numerical match for falling-block game or a claim about the latest private guideline.
 
-Downstack already implements this interval, so no gameplay timing change was needed. Rechecked **198 input, controller-drop and Settings assertions** in Godot 4.6.3 on Linux. Coverage confirms the 20× cadence at base and increased gravity, normal gravity after release, retained 500 ms lock delay, continued dropping on the next piece while held, and slider-zero persistence. Five new assertions cover default release, lock delay and continued hold specifically. The public document does not fully specify the first-cell/re-press cadence; Downstack retains its tested anti-burst input behavior.
+Normal gravity now follows section **7**: `1000 × (0.8 − (L − 1) × 0.007)^(L − 1)` milliseconds per cell. Versus advances a level every ten cleared lines. The previous gentler curve and 40 ms minimum interval are removed. Since versus continues until top-out, Downstack holds the last documented level, **15**, from 140 cleared lines onward; that continuation is a Downstack policy. Sprint remains at starting gravity throughout, consistent with section **12.2**.
+
+The separate **Instant soft drop** toggle reaches the floor in one simulation tick while retaining lock delay. It is an additional option, not the guideline default. At high gravity the default can also cross multiple cells per tick; fractional timing is retained. Finite custom settings cannot slow faster normal gravity.
+
+All **1117 assertions** passed in Godot 4.6.3 on Linux. The 90-check gravity suite covers the complete curve, level boundaries, the versus cap, Sprint, actual falling distances, multiple-cell ticks, default and Instant behavior, release and lock delay. Existing input checks cover continued hold across pieces and slider-zero persistence. The public document does not fully specify first-cell/re-press cadence; Downstack retains its tested anti-burst input behavior. Protocol **8** prevents clients using the old gravity curve from joining the same room.
 
 | Reference | Verified behavior or speed | Evidence and limits |
 | --- | --- | --- |

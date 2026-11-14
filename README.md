@@ -115,7 +115,7 @@ Up to four active players may share one room, with any mix of local and remote p
 
 **Host as viewer:** Leave your player slots empty. Remote players join and add themselves; you can start/end rounds and watch without playing. Remote spectators likewise join without adding a player. A **CURRENTLY SPECTATING** banner appears at the top whenever you have no player slot in an online room, including while watching a match. Adding a local player hides it; removing your last local player restores it. No extra spectator button is needed. The room accepts twelve remote computer connections plus the host, with four active players total.
 
-The host can end a round to return everyone to the lobby. Leaving as host closes the room; there is no host migration. A disconnected player's boards forfeit. Late joiners can watch, then add players in the next lobby. All participants must use this updated protocol 7 build. Earlier clients are rejected before entering the lobby.
+The host can end a round to return everyone to the lobby. Leaving as host closes the room; there is no host migration. A disconnected player's boards forfeit. Late joiners can watch, then add players in the next lobby. All participants must use this updated protocol 8 build. Earlier clients are rejected before entering the lobby so different gravity curves cannot share a match.
 
 ## Remapping and soft drop
 
@@ -125,7 +125,7 @@ Reusing an input swaps its previous binding into the edited slot, preventing one
 
 Settings are local and persist across launches. Keyboard profiles are separate. Controller profiles use the controller's reported model/GUID, with connection order separating identical controllers. A different connection order for identical pads may change which saved profile they use. Controller hotplug updates the selector and cancels any capture. A disconnected controller is blocked for the rest of that round, even if the same runtime ID reconnects. Return to the lobby and explicitly select/add the intended controller before restarting.
 
-The default **20× gravity** setting at slider **0** divides the current normal fall interval by 20. At the sprint's 1 row/second gravity this gives 20 cells/second; in versus it increases with gravity. Verified against sections 5.5 and 7.1 of the public March 2009 guideline reproduction on 14 November 2026. This retains the existing behavior; it is not a verified numerical match for falling-block game or the latest private guideline. See SOFT_DROP_REFERENCE.md for sources and checks.
+Normal gravity uses the public March 2009 guideline's curve: `1000 × (0.8 − (L − 1) × 0.007)^(L − 1)` milliseconds per cell. Versus advances one level per ten cleared lines, then holds level 15 for long matches. Sprint stays at level 1. Default soft drop at slider **0** is **20× this gravity**, with normal lock delay retained; the separate **Instant soft drop** toggle reaches the floor immediately. The reference is the historical guideline, not verified falling-block game timing or the latest private specification. See SOFT_DROP_REFERENCE.md for details and tests.
 
 Soft-drop level 0 selects the existing 20× gravity default. Levels 1–10 select fixed minimum descent speeds: 5, 10, 15, 20, 30, 45, 60, 75, 90 or 120 cells/second. The added 75 cells/second step fills the tenth finite position without changing any saved rate. These rates never slow a faster normal gravity. All three sliders use the same track, thumb, dimensions and numeric readout; the soft-drop readout tooltip identifies its actual rate. The separate Instant soft drop toggle moves the active piece to the floor in one simulation tick and retains the normal lock delay. Holding it does not reset that delay forever. Hard drop still lands and locks immediately at every soft-drop setting. Finite soft drop responds immediately when its cadence permits, then repeats at the selected interval. Brief releases/re-presses cannot exceed that rate. Releasing it returns to normal gravity without a stored-time burst.
 
@@ -158,7 +158,7 @@ Incoming garbage gets a full receiver-side warning, default 1000 ms, adjustable 
 
 Normal single/double/triple/quad: 0/1/2/4. Full T-spin single/double/triple: 2/4/6. Mini single/double: 0/1. Combos use TETR.IO's multiplier calculation, rounded down, with its logarithmic minimum for singles. Then add the current B2B count as a flat bonus on qualifying quads and T-spin clears. The first qualifying clear establishes the chain at 0; subsequent ones add 1, 2, 3, and so on. Ordinary single/double/triple clears break B2B; non-clearing placements preserve B2B but end the combo. No surge or extra counterattack delay. Perfect clears retain the existing 10-total override before cancellation. Read RULES_REFERENCE.md for the formula, examples, sources and remaining design choices.
 
-Multiplayer protocol 7 carries the numeric B2B counter and one aligned shaft per attack. All participants must use this updated build; older clients are rejected before lobby admission. Each attack keeps one target, one hole column and one packet identity, including attacks above 20 or 40 rows.
+Multiplayer protocol 8 requires the updated gravity curve and retains the numeric B2B counter and one aligned shaft per attack. All participants must use this updated build; older clients are rejected before lobby admission. Each attack keeps one target, one hole column and one packet identity, including attacks above 20 or 40 rows.
 
 ## Limits
 
@@ -171,6 +171,7 @@ The source folder contains the editable Godot project. Open project.godot with G
 ```text
 godot --headless --path . --export-release "Windows Desktop" ../build/Downstack.exe
 godot --headless --path . --script tests/core_test.gd
+godot --headless --path . --script tests/gravity_test.gd
 godot --headless --path . --script tests/garbage_test.gd
 godot --headless --path . --script tests/update_test.gd
 godot --headless --path . --script tests/input_test.gd
