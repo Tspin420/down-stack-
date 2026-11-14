@@ -1,3 +1,9 @@
+# Downstack 0.9.0 — room-code preview
+
+Added Create online room, Copy room code, and Join room, backed by a bounded Node.js/WebSocket relay. Internet connections use verified TLS and require no player port forwarding. LAN/IP controls remain available separately with ENet protocol 4 compatibility.
+
+Added room isolation/authority checks, cancellation and actionable connection errors, late spectating, old-round packet rejection, and omission of own-board echoes. A free single-instance Render blueprint and maintainer instructions are included. The relay is not yet deployed; unconfigured builds explicitly disable online-room controls. Public hosting, WAN performance, and a configured Windows release remain pending.
+
 # Downstack 0.8.0
 
 Added a visible Fullscreen/Windowed button and an immediately saved Display selection in Settings. F11 is handled before gameplay and key capture, including popup windows; echoes and releases do not retoggle. Startup restores the display preference. Fullscreen uses borderless mode with an expanding layout, and returning to windowed mode restores the previous bounds or maximized state. Sound and popup dialogs are embedded so they stay with the game.

@@ -8,7 +8,11 @@ signal garbage_arrived(player_id, amount, hole, packet_id)
 signal closed(message)
 
 const Board = preload("res://scripts/board.gd")
+const RoomRelay = preload("res://scripts/room_relay.gd")
 const PROTOCOL = 4
+var relay
+var relay_peer_id = 0
+var room_code = ""
 var online = false
 var hosting = false
 var running = false
@@ -33,7 +37,70 @@ func _ready():
  multiplayer.server_disconnected.connect(func(): close_session("Host disconnected. The match has ended."))
 
 func local_id() -> int:
+ if relay != null: return relay_peer_id
  return multiplayer.get_unique_id() if online else 1
+
+func open_room(url: String, create: bool, code: String = "") -> Error:
+ if online: return ERR_ALREADY_IN_USE
+ relay = RoomRelay.new()
+ add_child(relay)
+ relay.connected.connect(_relay_connected)
+ relay.peer_joined.connect(_relay_peer_joined)
+ relay.peer_left.connect(_peer_disconnected)
+ relay.packet.connect(_relay_packet)
+ relay.failed.connect(close_session)
+ var result = relay.open(url, create, code, PROTOCOL)
+ if result != OK:
+  relay.queue_free()
+  relay = null
+  return result
+ online = true
+ hosting = create
+ return OK
+
+func _relay_connected(id: int, code: String):
+ relay_peer_id = id
+ room_code = code.substr(0, 4)+"-"+code.substr(4)
+ if hosting: _broadcast_lobby()
+
+func _relay_peer_joined(id: int):
+ if not hosting or id <= 1: return
+ ready_peers[id] = true
+ _broadcast_lobby()
+ if running and relay != null:
+  if not relay.send_packet("start", [seed_value], id): return
+  for player_id in states:
+   if not relay.send_packet("state", [player_id, _pack(states[player_id]), seed_value], id): return
+
+func _relay_packet(sender: int, kind: String, args: Array):
+ # Dispatch an explicit allowlist. Never call methods named by a remote peer.
+ if hosting:
+  if not ready_peers.has(sender): return
+  match kind:
+   "player":
+    if args.size() == 7 and args[0] is int and args[1] is String and args[2] is String and args[3] is float and args[4] is float and args[5] is bool and args[6] is float:
+     _change(sender, args[0], args[1], args[2], args[3], args[4], args[5], args[6])
+   "submit":
+    if args.size() == 3 and args[0] is String and args[1] is PackedByteArray and args[2] == seed_value and running and _owns(sender, args[0]):
+     var data = _unpack(args[1])
+     if _valid_state(data): states[args[0]] = data
+   "attack":
+    if args.size() == 3 and args[0] is String and args[1] is int and args[2] == seed_value:
+     _route_attack(sender, args[0], args[1])
+ elif sender == 1:
+  match kind:
+   "lobby":
+    if args.size() == 3 and args[0] is Array and args[1] is Dictionary and args[2] is int: _lobby(args[0], args[1], args[2])
+   "start":
+    if args.size() == 1 and args[0] is int: _start(args[0])
+   "state":
+    if args.size() == 3 and args[0] is String and args[1] is PackedByteArray and args[2] == seed_value: _state(args[0], args[1])
+   "garbage":
+    if args.size() == 5 and args[0] is String and args[1] is int and args[2] is int and args[3] is int and args[4] == seed_value and running: _garbage(args[0], args[1], args[2], args[3])
+   "finish":
+    if args.size() == 2 and args[0] is String and args[1] == seed_value: _finish(args[0])
+   "return":
+    if args.is_empty(): _return_to_lobby()
 
 func make_local():
  online = false
@@ -59,9 +126,15 @@ func join(address: String,port: int) -> Error:
 
 func close_session(message: String = ""):
  running = false
- if online:
+ if relay != null:
+  relay.shutdown()
+  relay.queue_free()
+  relay = null
+ elif online:
   net.close()
   multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+ relay_peer_id = 0
+ room_code = ""
  online = false
  hosting = false
  roster.clear()
@@ -98,6 +171,7 @@ func _peer_disconnected(id: int):
 
 func change_player(device: int,player_name: String,device_name: String,das: float,arr: float,remove: bool = false,soft_drop: float = -1.0):
  if hosting: _change(local_id(),device,player_name,device_name,das,arr,remove,soft_drop)
+ elif relay != null: relay.send_packet("player", [device, player_name, device_name, das, arr, remove, soft_drop], 1)
  elif online: _request_player.rpc_id(1,device,player_name,device_name,das,arr,remove,soft_drop)
 
 @rpc("any_peer","call_remote","reliable")
@@ -129,7 +203,10 @@ func set_rules(clear_ms: float,garbage_ms: float):
 
 func _broadcast_lobby():
  screens = ready_peers.size()+1
- if online: _lobby.rpc(roster,rules,screens)
+ if relay != null:
+  if not relay.send_packet("lobby", [roster, rules, screens]): return
+  _lobby(roster, rules, screens)
+ elif online: _lobby.rpc(roster,rules,screens)
  else: lobby_updated.emit()
 
 @rpc("authority","call_local","reliable")
@@ -142,7 +219,10 @@ func _lobby(players: Array,settings: Dictionary,screen_count: int):
 func begin():
  if not hosting or running or roster.is_empty(): return
  seed_value = randi_range(1,2147483647)
- if online: _start.rpc(seed_value)
+ if relay != null:
+  if not relay.send_packet("start", [seed_value]): return
+  _start(seed_value)
+ elif online: _start.rpc(seed_value)
  else: _start(seed_value)
 
 @rpc("authority","call_local","reliable")
@@ -159,7 +239,10 @@ func _start(value: int):
 
 func back_to_lobby():
  if not hosting: return
- if online: _return_to_lobby.rpc()
+ if relay != null:
+  if not relay.send_packet("return", []): return
+  _return_to_lobby()
+ elif online: _return_to_lobby.rpc()
  else: _return_to_lobby()
 
 @rpc("authority","call_local","reliable")
@@ -174,6 +257,7 @@ func post_state(id: String,data: Dictionary):
  if not running: return
  if hosting:
   if _owns(local_id(),id): states[id] = data
+ elif relay != null: relay.send_packet("submit", [id, _pack(data), seed_value], 1)
  elif online: _submit_state.rpc_id(1,id,_pack(data))
 
 func _pack(data: Dictionary) -> PackedByteArray:
@@ -228,6 +312,7 @@ func _state(id: String,payload: PackedByteArray):
 
 func attack(id: String,amount: int):
  if hosting: _route_attack(local_id(),id,amount)
+ elif relay != null: relay.send_packet("attack", [id, amount, seed_value], 1)
  elif online: _attack.rpc_id(1,id,amount)
 
 @rpc("any_peer","call_remote","reliable")
@@ -245,7 +330,10 @@ func _route_attack(owner: int,id: String,amount: int):
  next_target[id] = cursor+1
  packet_counter += 1
  var hole = attack_rng.randi_range(0,9)
- if online: _garbage.rpc(target,amount,hole,packet_counter)
+ if relay != null:
+  if not relay.send_packet("garbage", [target, amount, hole, packet_counter, seed_value]): return
+  _garbage(target,amount,hole,packet_counter)
+ elif online: _garbage.rpc(target,amount,hole,packet_counter)
  else: _garbage(target,amount,hole,packet_counter)
 
 @rpc("authority","call_local","reliable")
@@ -262,7 +350,10 @@ func _process(dt: float):
  publish_clock += dt
  if publish_clock >= 0.05:
   publish_clock = 0
-  if online:
+  if relay != null:
+   for player in roster:
+    if states.has(player.id) and not relay.send_packet("state", [player.id, _pack(states[player.id]), seed_value], 0, player.owner): return
+  elif online:
    for id in states: _state.rpc(id,_pack(states[id]))
  var alive_ids = []
  for p in roster:
@@ -271,6 +362,9 @@ func _process(dt: float):
   settle_clock += dt
   if settle_clock >= 0.2:
    var winner = str(alive_ids[0]) if alive_ids.size() == 1 else ""
-   if online: _finish.rpc(winner)
+   if relay != null:
+    if not relay.send_packet("finish", [winner, seed_value]): return
+    _finish(winner)
+   elif online: _finish.rpc(winner)
    else: _finish(winner)
  else: settle_clock = 0

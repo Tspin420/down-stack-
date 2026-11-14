@@ -1,3 +1,17 @@
+# Downstack 0.9 room-code preview validation
+
+Tested on Windows with Godot 4.6.3 and Node.js 24.22.1. The nine existing regression suites passed: **665 checks, zero failures**. The new main-menu/room-configuration suite passed **29 checks**, for **694 Godot checks** total. The relay server passed **13 Node integration tests**.
+
+Four actual Godot processes connected through the local WebSocket relay with four player boards and a late spectator. Verified garbage delivery and warning duration, expanded board snapshots, rematch, old-round attack rejection, disconnect forfeit, winner agreement, host departure and lobby cleanup. The existing four-process ENet test also passed.
+
+Fixed a reproduced error-reporting defect during testing: Godot can observe the WebSocket close before delivering its final error frame. The relay now supplies an actionable close reason, and the client consumes it, so an invalid code/closed host does not become a vague disconnect or a 90-second retry.
+
+Bandwidth estimates from tests/room_bandwidth.gd: 423/549/660 bytes per application packet for empty/eight-row/sixteen-row boards; 61–95 MB/hour for a two-PC two-player room, or 365–570 MB/hour for four PCs/four players, before network overhead and other messages. These are synthetic samples, not WAN measurements.
+
+**Not yet verified:** public relay deployment, real WAN latency/loss, provider cold-start behavior, a configured exported Windows build, and visual/physical-controller playtesting of this version. online.cfg is intentionally blank and the app reports online rooms unavailable until configured. No hosting account or paid service was created.
+
+---
+
 # Validation — Downstack 0.8.0
 
 Built and checked 12 November 2026 with Godot 4.6.3 Standard and the matching official export templates. The template archive's SHA-512 matched the checksum published with the official release.

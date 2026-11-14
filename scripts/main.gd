@@ -51,6 +51,13 @@ var devices: OptionButton
 var name_field: LineEdit
 var address_field: LineEdit
 var port_field: SpinBox
+var code_field: LineEdit
+var code_box: HBoxContainer
+var code_label: Label
+var online_create_button: Button
+var online_join_button: Button
+var online_cancel_button: Button
+var online_help: Label
 var das_field: HSlider
 var arr_field: HSlider
 var garbage_field: SpinBox
@@ -196,7 +203,12 @@ func _build_ui():
  fullscreen_button.tooltip_text = "Toggle fullscreen (F11). Your choice is saved."
  _button("Sound",header,func(): audio_dialog.popup_centered(Vector2i(500,240)))
  _build_audio_dialog()
- status = _label("Versus, practice and the race to 40 · v0.8",page,14,"8294ae")
+ status = _label("Versus, practice and the race to 40 · v0.9",page,14,"8294ae")
+ code_box = HBoxContainer.new()
+ page.add_child(code_box)
+ code_label = _label("",code_box,22,"78d9c3")
+ _button("Copy room code",code_box,func(): DisplayServer.clipboard_set(room.room_code))
+ code_box.hide()
  _space(page,12)
  body = HBoxContainer.new()
  body.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -205,18 +217,41 @@ func _build_ui():
  home.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  home.add_theme_constant_override("separation",16)
  body.add_child(home)
- _space(home,75)
- _label("Your room.\nYour rhythm.",home,64,"ecf7f4")
+ _space(home,24)
+ _label("Your room.\nYour rhythm.",home,52,"ecf7f4")
  _label("Fast handling. Deliberate counterplay.\nOne screen or across the internet.",home,22,"95aac5")
  _space(home,22)
  var actions = HBoxContainer.new()
  home.add_child(actions)
  _button("Local match",actions,_local)
  _button("40-line sprint",actions,_sprint)
- _button("Host lobby",actions,_host)
- _space(home,16)
+ _space(home,8)
+ var online_row = HBoxContainer.new()
+ home.add_child(online_row)
+ online_create_button = _button("Create online room",online_row,func(): _online_room(true))
+ code_field = LineEdit.new()
+ code_field.placeholder_text = "Room code: ABCD-EFGH"
+ code_field.max_length = 32
+ code_field.custom_minimum_size.x = 275
+ online_row.add_child(code_field)
+ online_join_button = _button("Join room",online_row,func(): _online_room(false))
+ code_field.text_submitted.connect(func(_value): _online_room(false))
+ online_cancel_button = _button("Cancel connection",online_row,func(): room.close_session())
+ online_cancel_button.hide()
+ online_help = _label("Create a room and share its code. No router setup.\nJoin as a spectator, then add your player when you're ready.",home,13,"8294ae")
+ var available = Session.RoomRelay.valid_url(Session.RoomRelay.configured_url())
+ online_create_button.disabled = not available
+ online_join_button.disabled = not available
+ if not available: online_help.text = "Online rooms aren't available in this build yet. Local play and LAN are available."
+ var direct_toggle = _button("LAN / direct connection",home,func(): pass)
+ direct_toggle.toggle_mode = true
+ var direct_panel = VBoxContainer.new()
+ home.add_child(direct_panel)
+ direct_panel.hide()
+ direct_toggle.toggled.connect(func(pressed): direct_panel.visible = pressed)
  var join_row = HBoxContainer.new()
- home.add_child(join_row)
+ direct_panel.add_child(join_row)
+ _button("Host LAN/IP",join_row,_host)
  address_field = LineEdit.new()
  address_field.placeholder_text = "Host IP address"
  address_field.custom_minimum_size.x = 320
@@ -227,8 +262,8 @@ func _build_ui():
  port_field.value = 42970
  port_field.custom_minimum_size.x = 130
  join_row.add_child(port_field)
- _button("Join lobby",join_row,_join)
- _label("Host on UDP 42970 · Direct internet connections may need port forwarding.\nNo account or subscription. Everyone joins as a spectator until they add a player.",home,13,"8294ae")
+ _button("Join LAN/IP",join_row,_join)
+ _label("Use the host's LAN address on the same network.\nDirect internet connections need UDP port forwarding; room codes do not.",direct_panel,13,"8294ae")
  lobby = HBoxContainer.new()
  lobby.add_theme_constant_override("separation",38)
  lobby.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -463,6 +498,31 @@ func _host():
   if ":" not in a and a != "127.0.0.1": addresses.append(a)
  status.text = "Hosting · UDP %d · LAN %s"%[port,", ".join(addresses)]
 
+func _online_room(create: bool):
+ if mode == "connecting": return
+ var url = Session.RoomRelay.configured_url()
+ if not Session.RoomRelay.valid_url(url):
+  status.text = "Online rooms aren't available in this build yet."
+  return
+ if not create and not Session.RoomRelay.valid_code(code_field.text):
+  status.text = "Enter the eight-character room code your friend shared."
+  return
+ session_kind = "versus"
+ room.rules.mode = "versus"
+ room.rules.entry_ms = 100.0
+ room.rules.clear_ms = -1 if clear_field.get_selected_id() == 9999 else clear_field.get_selected_id()
+ room.rules.garbage_ms = garbage_field.value
+ var err = room.open_room(url, create, code_field.text)
+ if err != OK:
+  status.text = "Could not start the room connection: "+error_string(err)
+  return
+ mode = "connecting"
+ online_create_button.disabled = true
+ online_join_button.disabled = true
+ online_cancel_button.show()
+ status.text = "Creating online room…" if create else "Joining room…"
+ online_help.text = "Connecting… The service may take a minute to wake up. You can cancel."
+
 func _join():
  if mode == "connecting": room.close_session()
  session_kind = "versus"
@@ -502,6 +562,7 @@ func _add_player():
 func _refresh_lobby():
  if mode == "home" and not room.hosting: return
  if room.running: return
+ _refresh_online_controls()
  if mode == "settings": settings_return_mode = "lobby"
  else: mode = "lobby"
  settings_button.disabled = mode == "settings"
@@ -547,7 +608,9 @@ func _refresh_lobby():
  rule_panel.visible = room.hosting and not sprint
  sprint_help.visible = sprint
  rules_help.text = "SRS · 7-bag · hold · ghost · five-piece preview" if sprint else "SRS · 7-bag · hold · T-spins · combos · back-to-back\nGarbage rises on a non-clearing lock after its warning.\nWith 3–4 players, attacks rotate between opponents."
- if not room.hosting and mode != "settings":
+ if not room.room_code.is_empty() and mode != "settings":
+  status.text = "Online room · Share the code above. Add your player to play, or stay to watch."
+ elif not room.hosting and mode != "settings":
   status.text = "Connected · Garbage warning %.0f ms · Clear delay %s"%[room.rules.garbage_ms,"classic" if room.rules.clear_ms < 0 else "%.0f ms"%room.rules.clear_ms]
 
 func _start_game(seed_value: int):
@@ -643,7 +706,18 @@ func _closed(message: String):
  input_stream.devices.clear()
  disconnected_inputs.clear()
  input_notice = ""
- status.text = message if not message.is_empty() else "Versus, practice and the race to 40 · v0.8"
+ _refresh_online_controls()
+ status.text = message if not message.is_empty() else "Versus, practice and the race to 40 · v0.9"
+
+func _refresh_online_controls():
+ if not is_instance_valid(code_box): return
+ code_box.visible = not room.room_code.is_empty()
+ code_label.text = "ROOM  "+room.room_code
+ online_cancel_button.hide()
+ var available = Session.RoomRelay.valid_url(Session.RoomRelay.configured_url())
+ online_create_button.disabled = not available
+ online_join_button.disabled = not available
+ online_help.text = "Create a room and share its code. No router setup.\nJoin as a spectator, then add your player when you're ready." if available else "Online rooms aren't available in this build yet. Local play and LAN are available."
 
 func _garbage(id: String,amount: int,hole: int,packet_id: int):
  if models.has(id):

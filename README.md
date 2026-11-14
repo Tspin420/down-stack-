@@ -1,12 +1,18 @@
-# Downstack 0.8.0
+# Downstack 0.9.0 — room-code preview
 
 A playable falling-block game with adjustable handling, delayed garbage, local multiplayer, player-hosted rooms, and a 40-line sprint. This is the next version of Counterfall, renamed Downstack. Original project code, synthesized audio, and a new T-piece icon; no falling-block game Ultimate files are needed.
+
+## Download versus source
+
+GitHub **Code → Download ZIP** downloads the editable Godot project. To play without installing Godot, use a Windows **Release ZIP** containing Downstack.exe and Downstack.pck. If no such release is attached, a standalone download is not yet published.
+
+**Room-code status:** the create/join flow is implemented, but the shared internet relay still needs deployment and configuration. Until then, the game marks online rooms unavailable. See [ONLINE_SETUP.md](ONLINE_SETUP.md).
 
 ## Start on Windows
 
 1. Extract the entire ZIP into a normal folder.
 2. Keep **Downstack.exe and Downstack.pck together**, then open Downstack.exe. No installer, administrator rights, account, or separate Godot installation is required.
-3. Choose Local match, 40-line sprint, or Host lobby. Enter your name, select a keyboard layout or connected controller, set your handling, then click Add / update player.
+3. Choose Local match, 40-line sprint, Create online room (configured builds), or LAN / direct connection → Host LAN/IP. Enter your name, select a keyboard layout or connected controller, set your handling, then click Add / update player.
 4. Start the round. Add a second player on a different input device for local versus.
 
 **Desktop shortcut:** open Settings and click **Create desktop shortcut**, or double-click **Create Desktop Shortcut.cmd** in the extracted game folder. This creates Downstack.lnk on your Windows desktop with the embedded T icon. It uses your actual Desktop location, including a redirected/OneDrive Desktop. Extract the entire ZIP first and keep the game folder in place afterward; the shortcut points there. Run the button/helper again after moving or updating the game. An existing Downstack game shortcut is updated. A different application’s shortcut with the same name is preserved and reported as a conflict. Downstack.ico is also included for manual icon customization.
@@ -16,6 +22,14 @@ A playable falling-block game with adjustable handling, delayed garbage, local m
 If shortcut creation is restricted by your Windows configuration, right-click Downstack.exe, choose Show more options if needed, then Send to > Desktop (create shortcut). Neither method moves the EXE or PCK.
 
 **Publisher warning:** This is still an unsigned development build. Renaming it and adding an icon do not create a verified publisher or guarantee that Windows SmartScreen stops warning. No certificate, security-setting change, or antivirus exception is installed. Trusted release signing needs a real signing identity and certificate; even newly signed applications can receive reputation warnings. The Windows executable has been exported and inspected, but not run on Windows hardware here. See VALIDATION.md.
+
+## New in 0.9
+
+- Create online room, eight-character room code, Copy room code, and Join room. LAN/IP controls are grouped separately.
+- Shared WebSocket relay avoids player router configuration once deployed. Only verified WSS is used on the internet.
+- Clear connecting/cancel, missing-room, full-room and host-left states. Unconfigured builds do not pretend that internet rooms are available.
+- Relay authority and room isolation, bounded traffic, heartbeat and slow-client handling. Old-round attacks are rejected; own-board echoes are omitted.
+- Local room-code integration covers late spectating, rematch, garbage, forfeit, winner and room closure. Public hosting and WAN testing remain pending.
 
 ## New in 0.8
 
@@ -104,9 +118,11 @@ Choose 40-line sprint, add one player, and start. The clock begins after the thr
 
 Up to four active players may share one room, with any mix of local and remote players. A computer may own two keyboard players plus gamepad players within that four-player total. Menus use the mouse; keyboard rollover depends on your keyboard.
 
-**LAN:** Select Host lobby. Other computers enter the host's LAN address and matching UDP port, then Join lobby. Add players on each computer. The host starts the round.
+**Room codes (configured builds):** Select Create online room and share the displayed code. Your friend enters it and selects Join room. Each person adds a player, then the host starts. Both use version 0.9 or newer. No router configuration is required. The relay is a shared service; its address is supplied with the game. See ONLINE_SETUP.md for the one-time maintainer deployment.
 
-**Internet:** Direct connections use the host's reachable address. The host's network must route the selected UDP port (default 42970) to that computer. Firewall permission and router port forwarding may be needed. There is no automatic NAT traversal or relay; carrier-grade NAT may prevent direct hosting.
+**LAN:** Expand LAN / direct connection and select Host LAN/IP. Other computers enter the host's LAN address and matching UDP port, then Join LAN/IP. Add players on each computer. The host starts the round.
+
+**Direct internet (advanced):** IP connections use the host's reachable address. The host's network must route the selected UDP port (default 42970) to that computer. Firewall permission and router port forwarding may be needed. There is no automatic NAT traversal or relay; carrier-grade NAT may prevent direct hosting.
 
 **Host as viewer:** Leave your player slots empty. Remote players join and add themselves; you can start/end rounds and watch without playing. Remote spectators likewise join without adding a player. The room accepts twelve remote computer connections plus the host, with four active players total.
 
@@ -155,7 +171,7 @@ Normal single/double/triple/quad: 0/1/2/4. Full T-spin single/double/triple: 2/4
 
 ## Limits
 
-This is a guideline-style independent prototype, not an officially certified falling-block game game or an exact commercial-game recreation. No matchmaking, friend list, invite codes, automatic port setup, relay, ranked ladder, host migration, replay system, bots, or competitive anti-cheat. Each computer simulates its own boards; the host coordinates routing/results. Input never waits for a remote player, and remote views update at 20 Hz. Real Windows performance, controller behavior, WAN conditions, and exhaustive rotation/top-out edge cases still need playtesting.
+This is a guideline-style independent prototype, not an officially certified falling-block game game or an exact commercial-game recreation. No matchmaking, friend list, ranked ladder, host migration, replay system, bots, or competitive anti-cheat. Room codes use the separately deployed relay; direct IP mode still has no automatic port setup. Each computer simulates its own boards; the host coordinates routing/results. Input never waits for a remote player, and remote views update at 20 Hz. Real Windows performance, controller behavior, WAN conditions, and exhaustive rotation/top-out edge cases still need playtesting.
 
 ## Source and builds
 
