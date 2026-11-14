@@ -1,0 +1,9 @@
+{
+  "name": "downstack-room-relay",
+  "version": "0.9.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": { "start": "node server.mjs", "test": "node --test test/*.test.mjs" },
+  "dependencies": { "ws": "8.23.0" }
+}
