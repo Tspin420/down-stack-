@@ -11,6 +11,7 @@ const HandlingControls = preload("res://scripts/handling_controls.gd")
 const InputStream = preload("res://scripts/input_stream.gd")
 const FullscreenShortcut = preload("res://scripts/fullscreen_shortcut.gd")
 const DesktopShortcut = preload("res://scripts/desktop_shortcut.gd")
+const MenuArt = preload("res://scripts/menu_art.gd")
 var fullscreen_shortcut
 var fullscreen_button: Button
 var fullscreen_enabled = false
@@ -45,7 +46,7 @@ var body: HBoxContainer
 var status: Label
 var home: VBoxContainer
 var lobby: HBoxContainer
-var player_list: VBoxContainer
+var player_list: GridContainer
 var roster_note: Label
 var devices: OptionButton
 var name_field: LineEdit
@@ -71,11 +72,30 @@ var mode = "home"
 var port = 42970
 var last_devices = []
 var config = ConfigFile.new()
+var network_page: VBoxContainer
+var menu_local: Button
+var menu_sprint: Button
+var menu_network: Button
+var menu_best: Label
+var menu_back: Button
+var menu_footer: Label
+var sound_button: Button
+var host_button: Button
+var join_button: Button
+var cancel_connect_button: Button
+var rules_toggle: Button
+var waiting_label: Label
+var player_setup_title: Label
+var player_scroll: ScrollContainer
+var rules_expanded = false
 
 func _ready():
  _make_theme()
+ _menu_inputs()
  if config.load("user://preferences.cfg") != OK:
   config.load(OS.get_data_dir().path_join("Godot/app_userdata/Counterfall/preferences.cfg"))
+ var saved_fullscreen = config.get_value("display","fullscreen",false)
+ _set_fullscreen(saved_fullscreen if saved_fullscreen is bool else false,false)
  input_settings = InputSettings.new(config)
  sound = Sound.new()
  add_child(sound)
@@ -96,20 +116,30 @@ func _ready():
  fullscreen_shortcut.toggle_requested.connect(_toggle_fullscreen)
  add_child(fullscreen_shortcut)
  fullscreen_shortcut.watch_windows(self)
- var saved_fullscreen = config.get_value("display","fullscreen",false)
- _set_fullscreen(saved_fullscreen if saved_fullscreen is bool else false,false)
+ _set_fullscreen(fullscreen_enabled,false)
  name_field.text = str(config.get_value("player","name","Player"))
  _device_list()
  sound.set_levels(float(config.get_value("audio","sfx",0.65)),float(config.get_value("audio","music",0.22)))
+ _menu_state()
+ _focus_menu.call_deferred()
  # Screenshot-only scene demonstration, never used during normal play.
  if "--showcase" in OS.get_cmdline_user_args(): _showcase()
+
+func _menu_inputs():
+ # Godot's built-in D-pad navigation has no A/B defaults. These UI actions
+ # are separate from the saved, per-player gameplay bindings.
+ for action in ["ui_accept","ui_cancel"]:
+  var event = InputEventJoypadButton.new()
+  event.device = -1
+  event.button_index = JOY_BUTTON_A if action == "ui_accept" else JOY_BUTTON_B
+  if not InputMap.action_has_event(action,event): InputMap.action_add_event(action,event)
 
 func _style(color: String,border: String = "28384b") -> StyleBoxFlat:
  var s = StyleBoxFlat.new()
  s.bg_color = Color(color)
  s.border_color = Color(border)
  s.set_border_width_all(1)
- s.set_corner_radius_all(8)
+ s.set_corner_radius_all(10)
  s.content_margin_left = 14
  s.content_margin_right = 14
  s.content_margin_top = 10
@@ -125,6 +155,9 @@ func _make_theme():
   t.set_stylebox("hover",type,_style("284252","6ed5bd"))
   t.set_stylebox("pressed",type,_style("284f51","6ed5bd"))
   t.set_stylebox("disabled",type,_style("101a28"))
+  var focus = _style("00000000","78e5cf")
+  focus.set_border_width_all(2)
+  t.set_stylebox("focus",type,focus)
   t.set_color("font_color",type,Color("e2edf6"))
  t.set_stylebox("normal","LineEdit",_style("0b1420"))
  t.set_stylebox("focus","LineEdit",_style("0b1420","6ed5bd"))
@@ -144,11 +177,57 @@ func _button(text_value: String,parent: Node,callback: Callable) -> Button:
  var b = Button.new()
  b.text = text_value
  b.custom_minimum_size.y = 44
- b.focus_mode = Control.FOCUS_NONE
+ b.focus_mode = Control.FOCUS_ALL
  parent.add_child(b)
  b.pressed.connect(callback)
  b.pressed.connect(func(): sound.play("menu"))
  return b
+
+func _primary(button: Button):
+ button.add_theme_stylebox_override("normal",_style("1b4a48","4bc8b1"))
+ button.add_theme_stylebox_override("hover",_style("245e58","83f0d9"))
+ button.add_theme_stylebox_override("pressed",_style("163a38","83f0d9"))
+
+func _panel(parent: Node,color: String = "101c2b") -> VBoxContainer:
+ var panel = PanelContainer.new()
+ panel.add_theme_stylebox_override("panel",_style(color,"263b50"))
+ panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+ parent.add_child(panel)
+ var column = VBoxContainer.new()
+ column.add_theme_constant_override("separation",12)
+ panel.add_child(column)
+ return column
+
+func _mode_button(title_value: String,subtitle: String,number: String,parent: Node,callback: Callable) -> Button:
+ var button = _button("",parent,callback)
+ button.name = title_value.to_pascal_case()
+ button.tooltip_text = title_value+" · "+subtitle
+ button.custom_minimum_size.y = 96
+ var margin = MarginContainer.new()
+ margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+ margin.add_theme_constant_override("margin_left",22)
+ margin.add_theme_constant_override("margin_right",22)
+ margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ button.add_child(margin)
+ var row = HBoxContainer.new()
+ row.alignment = BoxContainer.ALIGNMENT_CENTER
+ row.add_theme_constant_override("separation",22)
+ row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ margin.add_child(row)
+ var tag = _label(number,row,22,"75dcca")
+ tag.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+ tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ var column = VBoxContainer.new()
+ column.alignment = BoxContainer.ALIGNMENT_CENTER
+ column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+ column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ row.add_child(column)
+ _label(title_value,column,25,"eef8f6").mouse_filter = Control.MOUSE_FILTER_IGNORE
+ _label(subtitle,column,15,"a2b8ca").mouse_filter = Control.MOUSE_FILTER_IGNORE
+ var arrow = _label("›",row,28,"8aafa9")
+ arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+ arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ return button
 
 func _space(parent: Node,height: float):
  var c = Control.new()
@@ -167,7 +246,7 @@ func _spin(parent: Node,label_value: String,low: float,high: float,value: float)
  spin.value = value
  spin.suffix = " ms"
  spin.custom_minimum_size.x = 175
- spin.get_line_edit().focus_mode = Control.FOCUS_CLICK
+ spin.get_line_edit().focus_mode = Control.FOCUS_ALL
  row.add_child(spin)
  return spin
 
@@ -178,110 +257,188 @@ func _build_ui():
  for side in ["top","bottom"]: margin.add_theme_constant_override("margin_"+side,26)
  add_child(margin)
  page = VBoxContainer.new()
- page.add_theme_constant_override("separation",10)
+ page.add_theme_constant_override("separation",12)
  margin.add_child(page)
  var header = HBoxContainer.new()
+ header.add_theme_constant_override("separation",10)
  page.add_child(header)
  var icon = TextureRect.new()
  icon.texture = preload("res://assets/icon.png")
  icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
  icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
- icon.custom_minimum_size = Vector2(46,46)
+ icon.custom_minimum_size = Vector2(42,42)
  header.add_child(icon)
- var brand = _label("DOWNSTACK",header,29,"e6f5ed")
+ var brand = _label("DOWNSTACK",header,25,"e6f5ed")
  brand.size_flags_horizontal = Control.SIZE_EXPAND_FILL
- _label("PLAY TOGETHER  /  HOST YOUR OWN",header,12,"78d9c3")
+ brand.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+ menu_back = _button("Back",header,_go_back)
  settings_button = _button("Settings",header,_open_settings)
  fullscreen_button = _button("Fullscreen",header,_toggle_fullscreen)
  fullscreen_button.tooltip_text = "Toggle fullscreen (F11). Your choice is saved."
- _button("Sound",header,func(): audio_dialog.popup_centered(Vector2i(500,240)))
+ sound_button = _button("Sound",header,func(): audio_dialog.popup_centered(Vector2i(500,240)))
  _build_audio_dialog()
- status = _label("Versus, practice and the race to 40 · v0.8",page,14,"8294ae")
- _space(page,12)
+ status = _label("",page,14,"8ea6bd")
+ status.custom_minimum_size.y = 20
  body = HBoxContainer.new()
  body.size_flags_vertical = Control.SIZE_EXPAND_FILL
  page.add_child(body)
+
  home = VBoxContainer.new()
  home.size_flags_horizontal = Control.SIZE_EXPAND_FILL
- home.add_theme_constant_override("separation",16)
  body.add_child(home)
- _space(home,75)
- _label("Your room.\nYour rhythm.",home,64,"ecf7f4")
- _label("Fast handling. Deliberate counterplay.\nOne screen or across the internet.",home,22,"95aac5")
- _space(home,22)
- var actions = HBoxContainer.new()
- home.add_child(actions)
- _button("Local match",actions,_local)
- _button("40-line sprint",actions,_sprint)
- _button("Host lobby",actions,_host)
- _space(home,16)
- var join_row = HBoxContainer.new()
- home.add_child(join_row)
+ var menu_row = HBoxContainer.new()
+ menu_row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+ menu_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+ menu_row.add_theme_constant_override("separation",72)
+ home.add_child(menu_row)
+ var modes = VBoxContainer.new()
+ modes.custom_minimum_size.x = 580
+ modes.alignment = BoxContainer.ALIGNMENT_CENTER
+ modes.add_theme_constant_override("separation",14)
+ menu_row.add_child(modes)
+ _label("MAIN MENU",modes,13,"6ed5bd")
+ _label("Play",modes,58,"eff9f6")
+ _label("Choose a mode to get started.",modes,17,"91aac0")
+ _space(modes,8)
+ menu_local = _mode_button("Local match","1–4 players on this computer","01",modes,_local)
+ _primary(menu_local)
+ menu_sprint = _mode_button("40-line sprint","One player. Beat your best time.","02",modes,_sprint)
+ menu_network = _mode_button("Network play","Host a room or join a friend.","03",modes,_network)
+ var menu_actions = HBoxContainer.new()
+ modes.add_child(menu_actions)
+ _button("Quit game",menu_actions,func(): get_tree().quit()).custom_minimum_size.x = 140
+ var feature = VBoxContainer.new()
+ feature.custom_minimum_size.x = 400
+ feature.alignment = BoxContainer.ALIGNMENT_CENTER
+ feature.add_theme_constant_override("separation",24)
+ menu_row.add_child(feature)
+ var art = MenuArt.new()
+ art.custom_minimum_size = Vector2(400,340)
+ feature.add_child(art)
+ var record = _panel(feature)
+ _label("40-LINE SPRINT / PERSONAL BEST",record,13,"82adba")
+ menu_best = _label("",record,36,"e4f6ed")
+ _label("Saved on this computer",record,13,"718ba4")
+
+ network_page = VBoxContainer.new()
+ network_page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+ network_page.add_theme_constant_override("separation",20)
+ body.add_child(network_page)
+ network_page.hide()
+ _space(network_page,28)
+ _label("NETWORK PLAY",network_page,13,"6ed5bd")
+ _label("Play together",network_page,42,"eef7f4")
+ _label("Choose who hosts the room. Add your players after connecting.",network_page,18,"95aec4")
+ _space(network_page,12)
+ var connections = HBoxContainer.new()
+ connections.add_theme_constant_override("separation",24)
+ network_page.add_child(connections)
+ var host = _panel(connections)
+ _label("Host a room",host,28,"e4f6ee")
+ _label("Create a lobby for friends to join.",host,16,"95aec4")
+ _space(host,16)
+ host_button = _button("Create lobby",host,_host)
+ _primary(host_button)
+ var join = _panel(connections)
+ _label("Join a room",join,28,"e4f6ee")
+ _label("Enter the address shared by your host.",join,16,"95aec4")
  address_field = LineEdit.new()
- address_field.placeholder_text = "Host IP address"
- address_field.custom_minimum_size.x = 320
- join_row.add_child(address_field)
+ address_field.placeholder_text = "Host address"
+ address_field.custom_minimum_size = Vector2(320,44)
+ join.add_child(address_field)
+ address_field.text_submitted.connect(func(_value): _join())
+ join_button = _button("Join lobby",join,_join)
+ cancel_connect_button = _button("Cancel connection",join,_cancel_connection)
+ cancel_connect_button.hide()
+ var advanced = HBoxContainer.new()
+ advanced.add_theme_constant_override("separation",14)
+ network_page.add_child(advanced)
+ _label("Port",advanced,14,"9ab0c4").vertical_alignment = VERTICAL_ALIGNMENT_CENTER
  port_field = SpinBox.new()
  port_field.min_value = 1024
  port_field.max_value = 65535
  port_field.value = 42970
- port_field.custom_minimum_size.x = 130
- join_row.add_child(port_field)
- _button("Join lobby",join_row,_join)
- _label("Host on UDP 42970 · Direct internet connections may need port forwarding.\nNo account or subscription. Everyone joins as a spectator until they add a player.",home,13,"8294ae")
+ port_field.custom_minimum_size.x = 150
+ advanced.add_child(port_field)
+ var port_hint = _label("Use the same port as the host.",advanced,14,"718ba4")
+ port_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+ var network_hint = _label("For internet play, the host may need to forward this port on their router.",network_page,14,"829bb4")
+ network_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
  lobby = HBoxContainer.new()
- lobby.add_theme_constant_override("separation",38)
+ lobby.add_theme_constant_override("separation",26)
  lobby.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  body.add_child(lobby)
  lobby.hide()
  var left = VBoxContainer.new()
  left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
- left.add_theme_constant_override("separation",15)
+ left.add_theme_constant_override("separation",14)
  lobby.add_child(left)
- lobby_title = _label("THE LOBBY",left,30,"edf8f4")
- roster_note = _label("",left,15,"78d9c3")
- player_list = VBoxContainer.new()
+ lobby_title = _label("LOCAL LOBBY",left,34,"edf8f4")
+ roster_note = _label("",left,15,"8eb4bb")
+ roster_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+ player_list = GridContainer.new()
+ player_list.columns = 2
  player_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
- player_list.add_theme_constant_override("separation",14)
+ player_list.add_theme_constant_override("h_separation",14)
+ player_list.add_theme_constant_override("v_separation",14)
  left.add_child(player_list)
- var row = HBoxContainer.new()
- left.add_child(row)
- start_button = _button("Start match",row,func(): room.begin())
- _button("Leave lobby",row,func(): room.close_session())
- var settings_scroll = ScrollContainer.new()
- settings_scroll.custom_minimum_size.x = 458
- settings_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
- lobby.add_child(settings_scroll)
+ waiting_label = _label("",left,15,"8eb4bb")
+ var start_actions = HBoxContainer.new()
+ start_actions.add_theme_constant_override("separation",12)
+ left.add_child(start_actions)
+ start_button = _button("Start match",start_actions,func(): room.begin())
+ start_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+ start_button.custom_minimum_size.y = 56
+ _primary(start_button)
+ var setup_panel = PanelContainer.new()
+ setup_panel.custom_minimum_size.x = 416
+ setup_panel.add_theme_stylebox_override("panel",_style("101c2b","263b50"))
+ lobby.add_child(setup_panel)
+ player_scroll = ScrollContainer.new()
+ player_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+ player_scroll.follow_focus = true
+ setup_panel.add_child(player_scroll)
  var right = VBoxContainer.new()
  right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
- right.add_theme_constant_override("separation",13)
- settings_scroll.add_child(right)
- _label("ADD A LOCAL PLAYER",right,17,"edf8f4")
+ right.add_theme_constant_override("separation",12)
+ player_scroll.add_child(right)
+ player_setup_title = _label("YOUR PLAYER",right,18,"e4f6ed")
+ _label("Name",right,13,"8da5bc")
  name_field = LineEdit.new()
  name_field.placeholder_text = "Player name"
  name_field.text = "Player"
+ name_field.custom_minimum_size.y = 42
  right.add_child(name_field)
+ _label("Keyboard or controller",right,13,"8da5bc")
  devices = OptionButton.new()
  devices.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+ devices.custom_minimum_size.y = 44
  right.add_child(devices)
  devices.item_selected.connect(func(_i): _load_lobby_handling())
- _button("Rebind each key / button",right,_open_settings)
+ _button("Change bindings",right,_open_settings)
+ _space(right,3)
+ _label("HANDLING",right,13,"75cdbb")
  lobby_handling = HandlingControls.new()
  right.add_child(lobby_handling)
  das_field = lobby_handling.das
  arr_field = lobby_handling.arr
  lobby_handling.changed.connect(_lobby_handling_changed)
  var presets = HBoxContainer.new()
+ presets.add_theme_constant_override("separation",8)
  right.add_child(presets)
- _button("Baseline · 5",presets,func(): das_field.value=5;arr_field.value=5)
- _button("Fastest · 10",presets,func(): das_field.value=10;arr_field.value=10)
- add_button = _button("Add / update player",right,_add_player)
- player_help = _label("Each keyboard layout or controller owns one board.\nLeave your slots empty to host and watch.",right,13,"8294ae")
- _space(right,7)
+ _button("Standard · 5",presets,func(): das_field.value=5;arr_field.value=5).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+ _button("Fast · 10",presets,func(): das_field.value=10;arr_field.value=10).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+ add_button = _button("Join as player",right,_add_player)
+ add_button.custom_minimum_size.y = 50
+ _primary(add_button)
+ player_help = _label("",right,13,"829bb4")
+ player_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+ rules_toggle = _button("Match rules  +",start_actions,_toggle_rules)
+ rules_toggle.custom_minimum_size.y = 56
  rule_panel = VBoxContainer.new()
  rule_panel.add_theme_constant_override("separation",10)
  right.add_child(rule_panel)
- _label("MATCH RULES · HOST",rule_panel,17,"edf8f4")
  garbage_field = _spin(rule_panel,"Garbage warning",250,3000,1000)
  _label("Line-clear delay",rule_panel,14)
  clear_field = OptionButton.new()
@@ -290,11 +447,15 @@ func _build_ui():
  clear_field.add_item("Classic · varies with clear size",9999)
  clear_field.add_item("Custom pace · 250 ms",250)
  rule_panel.add_child(clear_field)
- sprint_help = _label("40 lines. Your fastest time.\nNo garbage. Instant clear and entry.\nRestart button retries. Personal best saves locally.",right,15,"78d9c3")
+ rule_panel.hide()
+ sprint_help = _label("Clear 40 lines as fast as you can. Your best time saves automatically.",right,14,"78d9c3")
+ sprint_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
  sprint_help.hide()
  garbage_field.value_changed.connect(func(_v): _apply_rules())
  clear_field.item_selected.connect(func(_i): _apply_rules())
- rules_help = _label("",right,13,"8294ae")
+ rules_help = _label("",right,13,"829bb4")
+ rules_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
  play_panel = VBoxContainer.new()
  play_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  play_panel.add_theme_constant_override("separation",14)
@@ -305,7 +466,8 @@ func _build_ui():
  play_top = _label("",match_header,21,"dff5ec")
  play_top.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  end_button = _button("End round",match_header,func(): _restart_sprint() if session_kind == "sprint" and disconnected_inputs.is_empty() else room.back_to_lobby())
- _button("Leave room",match_header,func(): room.close_session())
+ end_button.focus_mode = Control.FOCUS_NONE
+ _button("Leave room",match_header,func(): room.close_session()).focus_mode = Control.FOCUS_NONE
  game_row = HBoxContainer.new()
  game_row.alignment = BoxContainer.ALIGNMENT_CENTER
  game_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -326,8 +488,12 @@ func _build_ui():
  settings_page.shortcut_requested.connect(_create_desktop_shortcut)
  body.add_child(settings_page)
  settings_page.hide()
- var footer = _label("Settings: bind each key, button, trigger or stick  ·  Soft drop: slider below ARR  ·  F11 fullscreen",page,12,"8294ae")
- footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+ menu_footer = _label("",page,12,"718ba4")
+ menu_footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+ menu_local.focus_neighbor_bottom = menu_local.get_path_to(menu_sprint)
+ menu_sprint.focus_neighbor_top = menu_sprint.get_path_to(menu_local)
+ menu_sprint.focus_neighbor_bottom = menu_sprint.get_path_to(menu_network)
+ menu_network.focus_neighbor_top = menu_network.get_path_to(menu_sprint)
 
 func _build_audio_dialog():
  audio_dialog = AcceptDialog.new()
@@ -373,32 +539,136 @@ func _device_list():
   if devices.get_item_id(i) == selected: devices.select(i)
  _load_lobby_handling()
 
+func _menu_state():
+ home.visible = mode == "home"
+ network_page.visible = mode in ["network","connecting"]
+ lobby.visible = mode == "lobby"
+ play_panel.visible = mode == "game"
+ menu_back.visible = mode in ["network","connecting","lobby","settings"]
+ settings_button.disabled = mode in ["game","connecting","settings"]
+ settings_button.tooltip_text = "Return to the lobby to change settings." if mode == "game" else ""
+ # A hard-drop key must never activate a header button during a round.
+ fullscreen_button.focus_mode = Control.FOCUS_NONE if mode == "game" else Control.FOCUS_ALL
+ sound_button.focus_mode = Control.FOCUS_NONE if mode == "game" else Control.FOCUS_ALL
+ host_button.disabled = mode == "connecting"
+ join_button.disabled = mode == "connecting"
+ address_field.editable = mode != "connecting"
+ port_field.editable = mode != "connecting"
+ cancel_connect_button.visible = mode == "connecting"
+ var best = float(config.get_value("sprint","best_ms",0.0))
+ menu_best.text = Handling.time_text(best) if best > 0 else "Set your first time"
+ menu_footer.text = "Arrow keys / D-pad to move · Enter / A to select · Esc / B to go back · F11 fullscreen"
+ if mode == "game": menu_footer.text = "DOWNSTACK  /  PLAY TOGETHER"
+
+func _focus_menu():
+ if not is_inside_tree(): return
+ match mode:
+  "home": menu_local.grab_focus()
+  "network": host_button.grab_focus()
+  "connecting": cancel_connect_button.grab_focus()
+  "lobby":
+   if room.hosting and not room.roster.is_empty(): start_button.grab_focus()
+   else: devices.grab_focus()
+  "settings": settings_page.picker.grab_focus()
+
+func _network():
+ mode = "network"
+ status.text = ""
+ _menu_state()
+ _focus_menu.call_deferred()
+
+func _cancel_connection():
+ if mode != "connecting": return
+ room.close_session()
+ mode = "network"
+ status.text = "Connection canceled."
+ _menu_state()
+ _focus_menu.call_deferred()
+
+func _go_back():
+ match mode:
+  "settings": settings_page._cancel()
+  "connecting": _cancel_connection()
+  "network":
+   mode = "home"
+   status.text = ""
+   _menu_state()
+   _focus_menu.call_deferred()
+  "lobby": room.close_session()
+
+func _unhandled_input(event: InputEvent):
+ if mode in ["home","game","settings"] or audio_dialog.visible: return
+ if event.is_action_pressed("ui_cancel"):
+  get_viewport().set_input_as_handled()
+  _go_back()
+
+func _toggle_rules():
+ rules_expanded = not rules_expanded
+ _rules_visibility()
+ if rule_panel.visible: _show_rules.call_deferred()
+
+func _show_rules():
+ # Expanded controls need a layout pass before their scroll position is known.
+ await get_tree().process_frame
+ if mode == "lobby" and rule_panel.visible:
+  player_scroll.ensure_control_visible(rule_panel)
+
+func _rules_visibility():
+ var available = room.hosting and session_kind != "sprint"
+ rules_toggle.visible = available
+ rules_toggle.text = "Match rules  −" if rules_expanded else "Match rules  +"
+ rule_panel.visible = available and rules_expanded
+ rules_help.visible = rule_panel.visible
+
 func _open_settings():
- if mode in ["game","settings"]: return
+ if mode in ["game","settings","connecting"]: return
  var device = int(devices.get_item_metadata(devices.selected)) if devices.selected >= 0 else -1
  settings_return_mode = mode
  settings_return_status = status.text
  mode = "settings"
- home.hide()
- lobby.hide()
- play_panel.hide()
- settings_button.disabled = true
+ _menu_state()
  status.text = "Set up your controls · Saved separately for each input profile"
  settings_page.open_for(device)
+ _focus_menu.call_deferred()
 
 func _return_from_settings():
  settings_page.close_page()
  mode = settings_return_mode
- settings_button.disabled = false
- home.visible = mode in ["home","connecting"]
- lobby.visible = mode == "lobby"
+ _menu_state()
  status.text = settings_return_status
  if mode == "lobby": _refresh_lobby()
  _load_lobby_handling()
+ _focus_menu.call_deferred()
 
 func _load_lobby_handling():
  if not is_instance_valid(lobby_handling) or devices.selected < 0: return
  lobby_handling.set_values(input_settings.profile(int(devices.get_item_metadata(devices.selected))))
+ _update_player_editor(true)
+
+func _update_player_editor(load_name: bool = false):
+ if devices.selected < 0: return
+ var device = int(devices.get_item_metadata(devices.selected))
+ var existing = room.roster.filter(func(p): return p.owner == room.local_id() and p.device == device)
+ if load_name and not existing.is_empty(): name_field.text = existing[0].name
+ var editing = not existing.is_empty()
+ player_setup_title.text = "EDIT YOUR PLAYER" if editing else "ADD YOUR PLAYER"
+ add_button.text = "Update player" if editing else ("Use this player" if session_kind == "sprint" else "Join as player")
+ add_button.disabled = room.roster.size() >= 4 and not editing and session_kind != "sprint"
+ if add_button.disabled: add_button.text = "Lobby is full"
+
+func _edit_player(player: Dictionary):
+ for i in devices.item_count:
+  if int(devices.get_item_metadata(i)) == player.device:
+   devices.select(i)
+   _load_lobby_handling()
+   name_field.grab_focus()
+   name_field.select_all()
+   return
+ status.text = "Reconnect this controller to edit it, or remove the player and choose another input."
+
+func _remove_player(player: Dictionary):
+ room.change_player(player.device,"","",player.das,player.arr,true)
+ add_button.grab_focus.call_deferred()
 
 func _lobby_handling_changed(values: Dictionary):
  if devices.selected < 0: return
@@ -427,6 +697,8 @@ func _settings_saved():
 
 func _local():
  if mode == "connecting": room.close_session()
+ rules_expanded = false
+ player_scroll.scroll_vertical = 0
  session_kind = "versus"
  room.rules.mode = "versus"
  room.rules.entry_ms = 100.0
@@ -434,9 +706,12 @@ func _local():
  room.make_local()
  _apply_rules()
  status.text = "Local room · All players on this computer"
+ _focus_menu.call_deferred()
 
 func _sprint():
  if mode == "connecting": room.close_session()
+ rules_expanded = false
+ player_scroll.scroll_vertical = 0
  session_kind = "sprint"
  room.rules.mode = "sprint"
  room.rules.clear_ms = 0.0
@@ -444,6 +719,7 @@ func _sprint():
  mode = "lobby"
  room.make_local()
  status.text = "40-line sprint · Countdown, then clear 40 as fast as you can"
+ _focus_menu.call_deferred()
 
 func _host():
  if mode == "connecting": room.close_session()
@@ -464,7 +740,7 @@ func _host():
  status.text = "Hosting · UDP %d · LAN %s"%[port,", ".join(addresses)]
 
 func _join():
- if mode == "connecting": room.close_session()
+ if mode == "connecting": return
  session_kind = "versus"
  if address_field.text.strip_edges().is_empty():
   status.text = "Enter the host’s address first."
@@ -474,6 +750,8 @@ func _join():
  else:
   mode = "connecting"
   status.text = "Connecting to host…"
+  _menu_state()
+  _focus_menu.call_deferred()
 
 func _apply_rules():
  if not room.hosting or mode != "lobby" or session_kind == "sprint": return
@@ -498,63 +776,82 @@ func _add_player():
  config.set_value("handling","arr_level",int(arr_field.value))
  config.set_value("player","name",name_field.text)
  config.save("user://preferences.cfg")
+ if room.hosting and not room.roster.is_empty(): start_button.grab_focus.call_deferred()
 
 func _refresh_lobby():
  if mode == "home" and not room.hosting: return
  if room.running: return
+ var entering = mode not in ["lobby","settings"]
+ if entering: player_scroll.scroll_vertical = 0
  if mode == "settings": settings_return_mode = "lobby"
  else: mode = "lobby"
- settings_button.disabled = mode == "settings"
- settings_button.tooltip_text = ""
- home.hide()
- play_panel.hide()
- lobby.visible = mode == "lobby"
+ _menu_state()
  var mine = room.roster.filter(func(p): return p.owner == room.local_id()).size()
  var sprint = session_kind == "sprint"
- lobby_title.text = "40-LINE SPRINT" if sprint else "THE LOBBY"
- player_help.text = "Select your input device and handling, then add a player.\nOne player. Restart using your assigned button." if sprint else "Each keyboard layout or controller owns one board.\nLeave your slots empty to host and watch."
- roster_note.text = "%d / 4 players · %d connected screen%s · You: %s"%[room.roster.size(),room.screens,"s" if room.screens!=1 else "","spectator" if mine == 0 else str(mine)+" player(s)"]
+ lobby_title.text = "40-line sprint" if sprint else ("Network lobby" if room.online else "Local lobby")
+ player_help.text = "Choose your input, then use this player." if sprint else "Each input owns one board. Leave your slots empty to spectate a network match."
+ roster_note.text = "%d / 4 players · %d connected screen%s"%[room.roster.size(),room.screens,"s" if room.screens != 1 else ""] if room.online else "%d / 4 players · All on this computer"%room.roster.size()
  if sprint:
   var best = float(config.get_value("sprint","best_ms",0.0))
   roster_note.text = "PERSONAL BEST  ·  "+(Handling.time_text(best) if best > 0 else "Set your first time")
+ var focus = get_viewport().gui_get_focus_owner()
+ var roster_had_focus = focus != null and player_list.is_ancestor_of(focus)
  for c in player_list.get_children():
   player_list.remove_child(c)
   c.queue_free()
+ player_list.columns = 1 if sprint else 2
  for i in (1 if sprint else 4):
   var panel = PanelContainer.new()
-  panel.add_theme_stylebox_override("panel",_style("101c2c"))
-  panel.custom_minimum_size.y = 91
+  panel.name = "Slot%d"%(i+1)
+  panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+  panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+  panel.custom_minimum_size.y = 210
+  var occupied = i < room.roster.size()
+  panel.add_theme_stylebox_override("panel",_style("132638" if occupied else "0d1724","335461" if occupied else "213244"))
   player_list.add_child(panel)
-  var row = HBoxContainer.new()
-  panel.add_child(row)
   var column = VBoxContainer.new()
-  column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-  row.add_child(column)
-  if i < room.roster.size():
+  column.alignment = BoxContainer.ALIGNMENT_CENTER
+  column.add_theme_constant_override("separation",10)
+  panel.add_child(column)
+  _label("PLAYER %02d"%(i+1),column,12,"78c9bd" if occupied else "5a7189")
+  if occupied:
    var p = room.roster[i]
-   _label("%02d   %s"%[i+1,p.name],column,21,"e1f2ed")
-   _label("%s · %s · DAS %d / ARR %d"%["LOCAL" if p.owner == room.local_id() else "REMOTE",p.input,Handling.level_for_ms("das",p.das),Handling.level_for_ms("arr",p.arr)],column,12,"91a5bd")
-   _label("Soft drop: "+InputSettings.soft_text(p.get("soft_drop",-1.0)),column,12,"78d9c3")
+   var player_name = _label(p.name,column,28,"ecf7f4")
+   player_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+   player_name.tooltip_text = p.name
+   var input_label = _label(("LOCAL  ·  " if p.owner == room.local_id() else "REMOTE  ·  ")+p.input,column,14,"a4bbca")
+   input_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+   input_label.tooltip_text = p.input
+   _label("DAS %d / ARR %d"%[Handling.level_for_ms("das",p.das),Handling.level_for_ms("arr",p.arr)],column,14,"9eb6c8")
+   _label("Soft drop: "+InputSettings.soft_text(p.get("soft_drop",-1.0)),column,13,"78d9c3")
    if p.owner == room.local_id():
-    _button("Remove",row,func(): room.change_player(p.device,"","",p.das,p.arr,true))
+    var actions = HBoxContainer.new()
+    actions.add_theme_constant_override("separation",8)
+    column.add_child(actions)
+    _button("Edit",actions,func(): _edit_player(p)).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    _button("Remove",actions,func(): _remove_player(p)).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+   else: _label("Controlled by another player",column,12,"718da5")
   else:
-   _label("%02d   Open slot"%[i+1],column,21,"657c98")
-   _label("A local or remote player can join",column,12,"657c98")
+   _label("Open slot",column,26,"718ba4")
+   var hint = _label("Add a player using the panel on the right.",column,14,"5c758f")
+   hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
  start_button.visible = room.hosting
  start_button.disabled = room.roster.is_empty()
  start_button.text = "Start practice" if room.roster.size() == 1 else "Start match"
  if sprint: start_button.text = "Start 40-line sprint"
- rule_panel.visible = room.hosting and not sprint
+ waiting_label.text = "Add a player to get started." if room.roster.is_empty() else ("Waiting for the host to start." if not room.hosting else ("Ready when you are." if mine > 0 else "You will watch as a spectator."))
+ _rules_visibility()
+ _update_player_editor()
  sprint_help.visible = sprint
- rules_help.text = "SRS · 7-bag · hold · ghost · five-piece preview" if sprint else "SRS · 7-bag · hold · T-spins · combos · back-to-back\nGarbage rises on a non-clearing lock after its warning.\nWith 3–4 players, attacks rotate between opponents."
+ rules_help.text = "Garbage rises after its warning on a non-clearing lock. With 3–4 players, attacks rotate between opponents."
  if not room.hosting and mode != "settings":
   status.text = "Connected · Garbage warning %.0f ms · Clear delay %s"%[room.rules.garbage_ms,"classic" if room.rules.clear_ms < 0 else "%.0f ms"%room.rules.clear_ms]
+ if entering or roster_had_focus: _focus_menu.call_deferred()
 
 func _start_game(seed_value: int):
  mode = "game"
  settings_page.close_page()
- settings_button.disabled = true
- settings_button.tooltip_text = "Return to the lobby to change settings."
+ _menu_state()
  status.text = "40-line sprint · Restart with your assigned button" if session_kind == "sprint" else "Local input · Player-hosted match"
  home.hide()
  lobby.hide()
@@ -607,6 +904,8 @@ func _round_finished(winner_id: String):
  result_buttons.show()
  retry_button.hide()
  back_button.visible = room.hosting
+ if room.hosting: back_button.grab_focus.call_deferred()
+ else: result_buttons.get_child(2).grab_focus.call_deferred()
 
 func _restart_sprint():
  if session_kind != "sprint" or room.roster.is_empty(): return
@@ -628,22 +927,21 @@ func _finish_sprint(board):
  result_buttons.show()
  retry_button.show()
  back_button.show()
+ retry_button.grab_focus.call_deferred()
 
 func _closed(message: String):
+ var failed_connection = mode == "connecting"
  settings_page.close_page()
- mode = "home"
- settings_button.disabled = false
- settings_button.tooltip_text = ""
- home.show()
- lobby.hide()
- play_panel.hide()
+ mode = "network" if failed_connection else "home"
+ _menu_state()
  models.clear()
  views.clear()
  local_profiles.clear()
  input_stream.devices.clear()
  disconnected_inputs.clear()
  input_notice = ""
- status.text = message if not message.is_empty() else "Versus, practice and the race to 40 · v0.8"
+ status.text = message
+ _focus_menu.call_deferred()
 
 func _garbage(id: String,amount: int,hole: int,packet_id: int):
  if models.has(id):
@@ -716,8 +1014,8 @@ func _set_fullscreen(enabled: bool, persist: bool = true):
     window.size = windowed_size.min(screen.size)
     window.position = Vector2i(clampi(windowed_position.x,screen.position.x,maxi(screen.position.x,screen.end.x-window.size.x)),clampi(windowed_position.y,screen.position.y,maxi(screen.position.y,screen.end.y-window.size.y)))
  fullscreen_enabled = enabled
- fullscreen_button.text = "Windowed" if enabled else "Fullscreen"
- settings_page.set_display_mode(enabled)
+ if is_instance_valid(fullscreen_button): fullscreen_button.text = "Windowed" if enabled else "Fullscreen"
+ if is_instance_valid(settings_page): settings_page.set_display_mode(enabled)
  if persist:
   config.set_value("display","fullscreen",enabled)
   var error = config.save("user://preferences.cfg")
