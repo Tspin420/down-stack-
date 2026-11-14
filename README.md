@@ -1,6 +1,8 @@
-# Downstack 0.8.0
+# Downstack 0.9.0
 
 A playable falling-block game with adjustable handling, delayed garbage, local multiplayer, player-hosted rooms, and a 40-line sprint. This is the next version of Counterfall, renamed Downstack. Original project code, synthesized audio, and a new T-piece icon; no falling-block game Ultimate files are needed.
+
+[Download the latest Windows release](https://github.com/Tspin420/down-stack-/releases/latest). Choose the **Downstack_Windows_0.9.0.zip** asset; GitHub’s source-code ZIP is for development.
 
 ## Start on Windows
 
@@ -21,63 +23,21 @@ If shortcut creation is restricted by your Windows configuration, right-click Do
 
 **Publisher warning:** This is still an unsigned development build. Renaming it and adding an icon do not create a verified publisher or guarantee that Windows SmartScreen stops warning. No certificate, security-setting change, or antivirus exception is installed. Trusted release signing needs a real signing identity and certificate; even newly signed applications can receive reputation warnings. The Windows executable has been exported and inspected, but not run on Windows hardware here. See VALIDATION.md.
 
-## New in 0.8
+## New in 0.9
 
-- Visible fullscreen button, immediate saved Display setting, reliable reserved F11 handling before key-binding capture, and remembered startup mode.
-- Fullscreen expands the layout to the screen; switching back restores the prior window bounds or maximized state. Embedded dialogs remain visible in fullscreen.
-- Windows desktop-shortcut button plus a double-click helper, both using the same included script. The shortcut targets the extracted EXE, uses its folder as the working directory, and shows the T icon. No administrator rights or execution-policy change.
-- **665 automated checks passed**, plus the four-process network test. Fullscreen transitions and Settings/Sound interaction were visually checked on Linux. Windows shortcut creation and Windows-specific display behavior still need target-PC testing.
-- Protocol remains 4, compatible with 0.7.
+- **VSync off, no render FPS cap, fixed 120 Hz gameplay.** Rendering speed does not change movement, gravity or lock timing. Remote boards receive snapshots at 20 Hz. Driver or operating-system settings may still impose synchronization or a cap; tearing can be visible with VSync disabled.
+- Neon menus, dedicated host/join setup, player cards, keyboard/controller navigation, and an automatic spectator banner. The existing T icon appears while loading.
+- Matching 0–10 handling sliders, zero/default presets, per-input Reset handling and a separate Instant soft-drop option.
+- Historical guideline gravity for levels 1–15, fixed starting gravity in Sprint, and 20× gravity for default soft drop. See SOFT_DROP_REFERENCE.md for the documented source and versus continuation policy.
+- Larger Hold/Next previews, adjusted board position, beveled blocks, continuous line-clear effects and the nonlinear garbage meter.
+- TETR.IO-style combos plus the custom growing flat B2B bonus; one shaft per attack, one-for-one cancellation, combo blocking and intact large attacks. See RULES_REFERENCE.md.
+- **Protocol 8: all players and spectators must update.** Older clients are rejected before joining.
 
-## Included from 0.7
+See [RELEASE_NOTES.md](RELEASE_NOTES.md) for this update, [CHANGELOG.md](CHANGELOG.md) for earlier releases and [VALIDATION.md](VALIDATION.md) for checks and remaining hardware tests.
 
-- **20 hidden buffer rows above the 20 visible rows.** I-pieces can rotate and kick above the skyline, and all their hidden cells remain stored and collision checked.
-- Fixed a reproduced premature top-out: an I-piece with three cells above the skyline and one visible could fit, but locking it killed the player and discarded the upper cell. That legal partial-above lock now survives. Fully hidden locks, blocked spawns and true buffer overflow still end the game.
-- Updated rendering, garbage movement, clearing and multiplayer snapshots for the full 40-row field. Spawn height relative to the visible board, floor, handling and lock delay are retained.
-- **Online compatibility changed:** all players and spectators need version **0.7 / protocol 4**. Older 22-row snapshots are incompatible.
-- All **640 checks**, including 89 new buffer checks, passed, plus four-process hidden-row replication. See BUFFER_NOTES.md.
-- Added source ignore rules and GITHUB_SETUP.md. The `source` folder is ready to use as a GitHub repository root; no hosted repository has been created.
+## Updating an existing installation
 
-## Included from 0.6
-
-- Captures rapid key/controller transitions in order: short taps, double taps and opposite-direction changes survive between simulation ticks. Overlapping primary/alternate controls still count as one held action.
-- Polling repairs a missed press/release callback when the current device state is available. Focus loss, Sound settings and controller loss clear pending input, movement charge and early rotation buffers. Held inputs need release before reuse after suspension.
-- Local games pause on focus loss, while Sound is open, or if an assigned controller disconnects. Online games continue; suspended local controls remain neutral. A disconnected controller must be reassigned in the lobby; its runtime ID cannot silently reclaim a live board after reconnecting. Use **Back to lobby** as host, or leave and rejoin as a client.
-- Fixed one rotation being applied twice on the exact piece-entry tick. Discrete actions pressed during the countdown do not fire at GO; held movement/soft drop can carry through. OS key repeat cannot become a fresh action after refocusing.
-- Added **214 input reliability checks**, including an 8,192-event deterministic stress sequence. All **551 checks** and the four-process network test passed. See INPUT_AUDIT.md for reproduced failures, recovery behavior and hardware limits.
-
-## Included from 0.5
-
-- Fixed a reproduced controller soft-drop timing bug: brief releases/re-presses can no longer grant repeated bonus steps and make a finite speed appear instant.
-- **Instant soft drop is now a separate toggle.** The slider below ARR stays finite, from 5 to 120 cells/second. Existing saved Instant choices remain explicitly enabled; the default stays 20× gravity.
-- Each action now has clearly labeled **Change** and **+ Bind input** buttons. Open Settings, choose the keyboard player or controller, click the action, press your desired input, then Apply & back. All eight actions can be bound individually.
-- Invalid soft-drop values no longer fall through to Instant.
-- Added a source comparison of official falling-block game documentation and TETR.IO: see SOFT_DROP_REFERENCE.md. Their multiplier settings are not interchangeable with fixed cells/second.
-
-## Included from 0.4
-
-- Dedicated **Settings** page, available from the main menu and lobby, with click-to-bind primary and alternate inputs for every action.
-- **Soft-drop slider directly below ARR**, both on Settings and in the lobby. Slide through fixed speeds from 5 to 120 cells/second. Instant has its own toggle. **Reset handling** restores the selected input’s default DAS, ARR and soft drop. The former gravity toggle and Standard/Fast presets are removed; moving the soft-drop slider selects a fixed speed.
-- Separate saved DAS, ARR, soft drop and bindings for each input profile. Existing 0.3 controls and soft-drop choices are retained, with old global DAS/ARR values used until a profile has its own saved handling.
-- Apply & back saves all edited profiles; Cancel discards pending Settings edits. Lobby slider changes save immediately and update existing local player slots for the next round.
-- Settings stays open when the online roster changes. A host-started round closes it and uses the last saved settings.
-
-## Included from 0.3
-
-- Remappable controls for Keyboard 1, Keyboard 2, and connected controllers. Each action has a primary and alternate input; buttons, D-pad, stick directions and analog triggers are supported.
-- Independent saved soft-drop choices per input profile: **20× gravity (default)**, fixed 5/10/15/20/30/45/60/90/120 cells per second, or Instant.
-- Fixed the accumulated-gravity burst: pressing soft drop no longer spends time already accumulated at normal gravity to drop many cells at once.
-- Restart sprint can also be remapped, so assigning R to another action no longer triggers the old global restart shortcut.
-- Existing player slots pick up saved soft-drop changes in the lobby. Each player's selected speed is carried through online room setup. Versions 0.3–0.6 used network protocol 3. Version 0.7 upgrades to protocol 4 for the expanded field; all participants must update.
-
-## Included from 0.2
-
-- Hold preview on the left; next queue on the right.
-- 18 sound effects and an original ambient music loop. The Sound button provides separate effects/music levels; set either to 0 to mute. Volume saves locally.
-- 40-line sprint with countdown, elapsed time, locally saved personal best, result screen, and R to retry.
-- Independent DAS and ARR sliders from 1 to 10. Higher numbers are faster; 5 is the previous build's baseline and 10 halves both baseline delays.
-- Downstack name, T-piece app icon, Windows version information, and separate project-data file.
-- Garbage-rule source audit and 81 regression checks. The attack amounts already matched the documented reference values, so those amounts are unchanged.
+Close Downstack and extract the new ZIP into a new folder. Keep all packaged files together. Controls, volume, fullscreen preference and Sprint records are stored separately in `%APPDATA%\Godot\app_userdata\Downstack` and survive changing the game folder. Run the desktop-shortcut helper again from the new folder if you used a shortcut. Everyone in an online room needs the same current build.
 
 ## Handling
 
@@ -195,6 +155,6 @@ godot --path . --rendering-method gl_compatibility --audio-driver Dummy --script
 
 This fixture writes sample player preferences. Use an isolated user-data directory (for example, `XDG_DATA_HOME` on Linux); it is a visual fixture, not a performance benchmark.
 
-For repository setup, use the source folder as the project root and follow GITHUB_SETUP.md. Windows builds belong in Releases.
+For the repeatable test/package commands and automated Windows release workflow, see [GITHUB_SETUP.md](GITHUB_SETUP.md). Windows builds belong in Releases.
 
 Project code is supplied under MIT. Godot engine/third-party notices are in licenses. The icon was generated for Downstack; audio was synthesized for this project, with its generation source included.

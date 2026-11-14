@@ -1,4 +1,10 @@
-# Unreleased
+# Downstack 0.9.0 — 14 November 2026
+
+VSync is explicitly disabled and rendering has no FPS cap. Gameplay remains on
+the independent 120 Hz physics loop; remote snapshots remain 20 Hz. Added a
+versioned Windows ZIP builder, source-commit metadata, SHA-256 checksum and a
+Windows release workflow that runs regression tests and exported-game startup
+before publishing.
 
 Launch now opens a focused Play menu with Local match, 40-line sprint and
 Network play. The T icon replaces the engine splash; saved fullscreen is applied
@@ -45,8 +51,9 @@ Multiplayer protocol 8 requires the updated gravity curve and retains numeric
 B2B state and the expanded attack range. All players and spectators need the
 updated build. All 1117 automated checks and
 the five-process multiplayer test passed on Linux/Godot 4.6.3, including old-client
-rejection. Resource export and startup passed; Windows runtime and frame-pacing
-validation remain pending. See RULES_REFERENCE.md and VALIDATION.md.
+rejection. Resource export and startup passed; physical Windows/controller playtesting and frame-pacing
+validation remain pending. The Windows release workflow separately runs the
+regression suites and an exported-executable headless startup before publication. See RULES_REFERENCE.md and VALIDATION.md.
 
 # Downstack 0.8.0
 
