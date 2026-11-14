@@ -26,9 +26,8 @@ const I_KICKS = {
  "12":[[0,0],[-1,0],[2,0],[-1,2],[2,-1]], "21":[[0,0],[1,0],[-2,0],[1,-2],[-2,1]],
  "23":[[0,0],[2,0],[-1,0],[2,1],[-1,-2]], "32":[[0,0],[-2,0],[1,0],[-2,-1],[1,2]],
  "30":[[0,0],[1,0],[-2,0],[1,-2],[-2,1]], "03":[[0,0],[-1,0],[2,0],[-1,2],[2,-1]]}
-# First clear is index 0; the second consecutive clear is combo 1.
-# falling-block game falling-block game-versus-falling-block game reference audit: RULES_REFERENCE.md.
-const COMBO_ATTACK = [0,0,1,1,2,2,3,3,4,4,4,5]
+# Wire-format bound, not a gameplay balance cap. Large attacks stay one packet.
+const MAX_ATTACK = 2147483647
 
 var grid = []
 var queue = []
@@ -46,7 +45,8 @@ var pieces = 0
 var sent = 0
 var score = 0
 var combo = -1
-var b2b = false
+# -1: no chain; 0: first difficult clear; 1+: displayed B2B and flat bonus.
+var b2b = -1
 var pending = []
 var delay = 0.0
 var elapsed = 0.0
@@ -180,9 +180,10 @@ func ghost_y() -> int:
 
 func receive_garbage(amount: int, hole: int, packet_id: int):
  if rules.mode == "sprint" or completed: return
- if amount <= 0 or amount > 40: return
+ if amount <= 0 or amount > MAX_ATTACK: return
  for p in pending:
   if p.id == packet_id: return
+ # Every attack creates one shaft whose depth is the number of rows sent.
  pending.append({"amount":amount, "hole":clampi(hole,0,9), "remaining":float(rules.garbage_ms), "id":packet_id})
 
 func _cancel(attack: int) -> int:
@@ -198,7 +199,10 @@ func _raise_garbage():
  while not pending.is_empty() and pending[0].remaining <= 0:
   rose = true
   var packet = pending.pop_front()
-  for n in int(packet.amount):
+  # More than H identical rows guarantees overflow and leaves the same final
+  # grid as H rows. Bound work by board height, not the incoming attack size.
+  if int(packet.amount) > H: alive = false
+  for n in mini(int(packet.amount),H):
    var removed = grid.pop_front()
    for value in removed:
     if value != 0: alive = false
@@ -207,6 +211,13 @@ func _raise_garbage():
    row[int(packet.hole)] = 0
    grid.append(row)
  if rose: sounds.append("garbage")
+
+static func combo_attack(base_attack: int, combo_index: int) -> int:
+ # TETR.IO multiplier table: first clear is index 0. The logarithmic minimum
+ # lets ordinary singles send during a combo even though their base is zero.
+ var attack = float(base_attack)*(1.0+0.25*maxi(0,combo_index))
+ if combo_index > 1: attack = maxf(attack,log(1.0+1.25*combo_index))
+ return floori(attack)
 
 func _corner(x: int,y: int) -> bool:
  return x < 0 or x >= W or y < 0 or y >= H or grid[y][x] != 0
@@ -249,9 +260,10 @@ func _lock():
    score += 400*cleared
   elif spin == 1:
    attack = [0,0,1][mini(cleared,2)]
-  if difficult and b2b: attack += 1
-  b2b = difficult
-  attack += COMBO_ATTACK[mini(combo,COMBO_ATTACK.size()-1)]
+  b2b = b2b+1 if difficult else -1
+  # Downstack B2B is a growing flat bonus AFTER the combo calculation. It is
+  # never multiplied, stored for a surge, or paid out when the chain breaks.
+  attack = combo_attack(attack,combo)+maxi(0,b2b)
   var perfect = true
   for row in grid:
    for v in row:

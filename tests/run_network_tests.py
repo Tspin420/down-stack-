@@ -1,4 +1,4 @@
-"""Exercise spectator hosting and mixed local/remote players on loopback."""
+"""Exercise spectator hosting, large attacks and old-protocol rejection."""
 import os
 from pathlib import Path
 import subprocess
@@ -11,13 +11,14 @@ processes = []
 failed = False
 with tempfile.TemporaryDirectory(prefix="downstack-net-") as scratch:
     try:
-        for role in ("host", "player", "remote", "watch"):
+        for role in ("host", "player", "remote", "watch", "legacy"):
             path = Path(scratch) / f"{role}.log"
             output = path.open("w")
             process = subprocess.Popen(
                 [engine, "--headless", "--path", str(root), "--script",
                  "tests/network_test.gd", "--", f"--role={role}", "--port=43971"],
                 stdout=output, stderr=subprocess.STDOUT,
+                env={**os.environ, "XDG_DATA_HOME": str(Path(scratch) / role)},
             )
             processes.append((role, process, output, path))
             time.sleep(0.3)
