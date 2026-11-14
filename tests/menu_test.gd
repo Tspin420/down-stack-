@@ -108,9 +108,9 @@ func run():
  app.das_field.value = 7
  app._add_player()
  check(app.room.roster.size() == 2 and app.start_button.text == "Start match","second input produces a versus match")
- check(app.input_settings.profile(-1).das_level == 5 and app.input_settings.profile(-2).das_level == 7,"lobby handling remains independent per input")
+ check(app.input_settings.profile(-1).das_level == 0 and app.input_settings.profile(-2).das_level == 7,"lobby handling remains independent per input")
  app._edit_player(app.room.roster[0])
- check(app.devices.selected == 0 and app.name_field.text == "Renamed" and app.das_field.value == 5,"Edit restores the correct player's handling")
+ check(app.devices.selected == 0 and app.name_field.text == "Renamed" and app.das_field.value == 0,"Edit restores the correct player's handling")
  app._remove_player(app.room.roster[1])
  check(app.room.roster.size() == 1 and app.start_button.text == "Start practice","Remove updates roster and start mode")
  app.room._change(42,-1,"Remote","Keyboard 1",166.6667,33.3333,false,-1.0)

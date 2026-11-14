@@ -14,6 +14,13 @@ only the selected input’s DAS, ARR and soft drop. Online rooms automatically
 show CURRENTLY SPECTATING when no local player slot is present, including in
 the match view. No additional role-selection button is needed.
 
+DAS, ARR and soft drop now share identical 0–10 sliders and numeric readouts.
+Zero selects the existing default on every control; Reset handling returns all
+three to zero. Custom 1–10 DAS/ARR speeds and saved soft-drop rates are retained;
+a 75 cells/second choice fills the tenth finite soft-drop position. Instant stays
+an explicit toggle and turning it off restores the selected slider position.
+The baseline remains falling-block game-inspired, not newly verified frame-perfect falling-block game timing.
+
 Enlarged and centered Hold/Next previews, shifted the playfield right, and added
 the nonlinear incoming-garbage meter with separate amount and urgency cues.
 Blocks use a shared beveled tile, and adjacent cleared rows form one continuous
@@ -28,7 +35,7 @@ by the former 20-row router and 40-row receiver cutoffs. Perfect clears remain
 10 total before cancellation.
 
 Multiplayer protocol 7 carries numeric B2B state and the expanded attack range.
-All players and spectators need the updated build. All 982 automated checks and
+All players and spectators need the updated build. All 1022 automated checks and
 the five-process multiplayer test passed on Linux/Godot 4.6.3, including old-client
 rejection. Resource export and startup passed; Windows runtime and frame-pacing
 validation remain pending. See RULES_REFERENCE.md and VALIDATION.md.

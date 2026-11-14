@@ -23,14 +23,17 @@ func quad(board):
  board.pos = Vector2i(2,Board.H-4)
 
 func run():
- for level in range(1,11):
-  check(Handling.level_for_ms("das",Handling.das_ms(level)) == level,"DAS level round trip")
-  check(Handling.level_for_ms("arr",Handling.arr_ms(level)) == level,"ARR level round trip")
+ for level in range(0,11):
+  var canonical = 0 if level == 5 else level
+  check(Handling.level_for_ms("das",Handling.das_ms(level)) == canonical,"DAS round trip identifies the baseline as default")
+  check(Handling.level_for_ms("arr",Handling.arr_ms(level)) == canonical,"ARR round trip identifies the baseline as default")
   if level > 1:
    check(Handling.das_ms(level) < Handling.das_ms(level-1),"higher DAS level is faster")
    check(Handling.arr_ms(level) < Handling.arr_ms(level-1),"higher ARR level is faster")
- check(is_equal_approx(Handling.das_ms(10)*2,Handling.das_ms(5)),"DAS 10 halves baseline delay")
- check(is_equal_approx(Handling.arr_ms(10)*2,Handling.arr_ms(5)),"ARR 10 halves baseline interval")
+ check(is_equal_approx(Handling.das_ms(0),166.666667),"DAS zero restores the existing baseline")
+ check(is_equal_approx(Handling.arr_ms(0),33.333333),"ARR zero restores the existing baseline")
+ check(is_equal_approx(Handling.das_ms(10)*2,Handling.das_ms(0)),"DAS 10 halves baseline delay")
+ check(is_equal_approx(Handling.arr_ms(10)*2,Handling.arr_ms(0)),"ARR 10 halves baseline interval")
  check(Handling.time_text(62345.0) == "01:02.345","sprint time formatting")
  var b = Board.new(1,{}, {"mode":"sprint","clear_ms":0.0,"entry_ms":0.0})
  b.lines = 36

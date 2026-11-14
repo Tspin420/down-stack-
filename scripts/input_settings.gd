@@ -4,19 +4,19 @@ extends RefCounted
 const ACTIONS = ["Move left","Move right","Soft drop","Rotate clockwise","Rotate counterclockwise","Hard drop","Hold","Restart sprint"]
 const REQUIRED = 7
 const RESTART = 128
-const SOFT_RATES = [-1.0,5.0,10.0,15.0,20.0,30.0,45.0,60.0,90.0,120.0,0.0]
+const SOFT_RATES = [-1.0,5.0,10.0,15.0,20.0,30.0,45.0,60.0,75.0,90.0,120.0,0.0]
 const Handling = preload("res://scripts/handling.gd")
 const PAD_NAMES = ["South · A / Cross","East · B / Circle","West · X / Square","North · Y / Triangle","Back / Select","Guide","Start / Options","Left stick click","Right stick click","LB / L1","RB / R1","D-pad Up","D-pad Down","D-pad Left","D-pad Right"]
 var profiles = {}
 var axis_latches = {}
 var device_profiles = {}
-var legacy_handling = {"das_level":5,"arr_level":5}
+var legacy_handling = {"das_level":0,"arr_level":0}
 
 func _init(config: ConfigFile = null):
  if config:
   for kind in ["das","arr"]:
    var fallback = Handling.level_for_ms(kind,float(config.get_value("handling",kind,166.6667 if kind == "das" else 33.3333)))
-   legacy_handling[kind+"_level"] = clampi(int(config.get_value("handling",kind+"_level",fallback)),1,10)
+   legacy_handling[kind+"_level"] = clampi(int(config.get_value("handling",kind+"_level",fallback)),0,10)
  if config and config.has_section("input_profiles"):
   for key in config.get_section_keys("input_profiles"):
    var value = config.get_value("input_profiles",key)
@@ -46,7 +46,7 @@ static func defaults(device: int) -> Dictionary:
   bindings[1][1] = axis_binding(JOY_AXIS_LEFT_X,1)
   bindings[2][1] = axis_binding(JOY_AXIS_LEFT_Y,1)
   bindings[6][1] = button_binding(JOY_BUTTON_RIGHT_SHOULDER)
- return {"bindings":bindings,"soft_drop":-1.0,"das_level":5,"arr_level":5}
+ return {"bindings":bindings,"soft_drop":-1.0,"das_level":0,"arr_level":0}
 
 static func reserved(code: int) -> bool:
  return code == KEY_ESCAPE or code == KEY_F11
@@ -73,9 +73,9 @@ static func sanitize(value,device: int) -> Dictionary:
  var clean = defaults(device)
  if not value is Dictionary: return clean
  for kind in ["das_level","arr_level"]:
-  var level = value.get(kind,5)
+  var level = value.get(kind,0)
   if (level is int or level is float) and is_finite(float(level)):
-   clean[kind] = clampi(int(level),1,10)
+   clean[kind] = clampi(int(level),0,10)
  var rate = value.get("soft_drop",-1.0)
  if (rate is float or rate is int) and is_finite(float(rate)) and float(rate) in SOFT_RATES:
   clean.soft_drop = float(rate)
