@@ -1,3 +1,24 @@
+# Unreleased
+
+Enlarged and centered Hold/Next previews, shifted the playfield right, and added
+the nonlinear incoming-garbage meter with separate amount and urgency cues.
+Blocks use a shared beveled tile, and adjacent cleared rows form one continuous
+fading band. Renderer caches avoid repeated style and piece-cell construction.
+
+Combos use the TETR.IO multiplier and logarithmic minimum, followed by a growing
+flat B2B bonus. Each attack retains one shaft with depth equal to the sent value;
+combo/B2B bonuses deepen that same shaft. One-for-one cancellation and blocking
+on every clearing placement remain, with no surge or extra counterattack delay.
+Large attacks now reach their intended receiver intact instead of being dropped
+by the former 20-row router and 40-row receiver cutoffs. Perfect clears remain
+10 total before cancellation.
+
+Multiplayer protocol 7 carries numeric B2B state and the expanded attack range.
+All players and spectators need the updated build. All 923 automated checks and
+the five-process multiplayer test passed on Linux/Godot 4.6.3, including old-client
+rejection. Resource export and startup passed; Windows runtime and frame-pacing
+validation remain pending. See RULES_REFERENCE.md and VALIDATION.md.
+
 # Downstack 0.8.0
 
 Added a visible Fullscreen/Windowed button and an immediately saved Display selection in Settings. F11 is handled before gameplay and key capture, including popup windows; echoes and releases do not retoggle. Startup restores the display preference. Fullscreen uses borderless mode with an expanding layout, and returning to windowed mode restores the previous bounds or maximized state. Sound and popup dialogs are embedded so they stay with the game.

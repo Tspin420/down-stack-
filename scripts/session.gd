@@ -8,7 +8,7 @@ signal garbage_arrived(player_id, amount, hole, packet_id)
 signal closed(message)
 
 const Board = preload("res://scripts/board.gd")
-const PROTOCOL = 4
+const PROTOCOL = 7
 var online = false
 var hosting = false
 var running = false
@@ -198,8 +198,9 @@ func _valid_state(data: Dictionary) -> bool:
   if not row is Array or row.size() != Board.W: return false
   for value in row:
    if not value is int or value < 0 or value > 8: return false
- for key in ["piece","rotation","x","y","held","lines","pieces","sent","score","ghost","combo"]:
+ for key in ["piece","rotation","x","y","held","lines","pieces","sent","score","ghost","combo","b2b"]:
   if not data[key] is int: return false
+ if data.combo < -1 or data.b2b < -1: return false
  if data.piece < 0 or data.piece > 7 or data.held < 0 or data.held > 7 or data.rotation < 0 or data.rotation > 3: return false
  if not data.next is Array or data.next.size() > 5: return false
  for n in data.next:
@@ -207,7 +208,9 @@ func _valid_state(data: Dictionary) -> bool:
  if not data.pending is Array or data.pending.size() > 128: return false
  for p in data.pending:
   if not p is Dictionary or not p.has_all(["amount","remaining","hole","id"]): return false
-  if not p.amount is int or p.amount < 0 or p.amount > 40: return false
+  if not p.amount is int or p.amount < 1 or p.amount > Board.MAX_ATTACK: return false
+  if not p.hole is int or p.hole < 0 or p.hole >= Board.W: return false
+  if p.has("row_holes"): return false
   if not (p.remaining is float or p.remaining is int): return false
  if not data.label is String or data.label.length() > 40: return false
  if not data.flash is Array or data.flash.size() > 4: return false
@@ -235,7 +238,7 @@ func _attack(id: String,amount: int):
  if hosting: _route_attack(multiplayer.get_remote_sender_id(),id,amount)
 
 func _route_attack(owner: int,id: String,amount: int):
- if not running or not _owns(owner,id) or amount < 1 or amount > 20: return
+ if not running or not _owns(owner,id) or amount < 1 or amount > Board.MAX_ATTACK: return
  var targets = []
  for p in roster:
   if p.id != id and states.get(p.id,{}).get("alive",false): targets.append(p.id)
