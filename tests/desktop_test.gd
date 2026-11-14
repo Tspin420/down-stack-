@@ -57,6 +57,7 @@ func run():
  page.display_mode.item_selected.emit(1)
  page._cancel()
  check(app.fullscreen_enabled and app.config.get_value("display","fullscreen"),"Cancel controls retains explicitly immediate display setting")
+ app._network()
  app.address_field.grab_focus()
  key(KEY_F11)
  key(KEY_F11,false)

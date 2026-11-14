@@ -22,12 +22,12 @@ func _ready():
  soft.tooltip_text = "5, 10, 15, 20, 30, 45, 60, 90 or 120 cells/sec. Instant is a separate option."
  gravity_default = CheckButton.new()
  gravity_default.text = "20× gravity (default)"
- gravity_default.focus_mode = Control.FOCUS_NONE
+ gravity_default.focus_mode = Control.FOCUS_ALL
  gravity_default.tooltip_text = "Scale soft drop with normal gravity. Drag the slider to choose a fixed speed instead."
  add_child(gravity_default)
  instant_soft = CheckButton.new()
  instant_soft.text = "Instant soft drop"
- instant_soft.focus_mode = Control.FOCUS_NONE
+ instant_soft.focus_mode = Control.FOCUS_ALL
  instant_soft.tooltip_text = "Explicitly enable a non-locking drop to the floor. Hard drop is a separate action."
  add_child(instant_soft)
  var help = Label.new()
@@ -70,7 +70,7 @@ func _slider(title: String,initial: int) -> HSlider:
  slider.value = initial
  slider.custom_minimum_size = Vector2(170,34)
  slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
- slider.focus_mode = Control.FOCUS_NONE
+ slider.focus_mode = Control.FOCUS_ALL
  row.add_child(slider)
  var number = Label.new()
  number.text = "%d / 10"%initial

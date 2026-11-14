@@ -1,5 +1,50 @@
 # Validation — Downstack review updates
 
+## Menu, lobby and launch review — 14 November 2026
+
+Review base: `cef3335d18998966c6dae2c0ee74bcd9d078f874` (`main`).
+
+Launch opens the Play menu directly, applies the saved fullscreen preference
+before building controls, and uses Downstack's existing T icon as the engine
+loading splash. Local match, Sprint and Network play lead to separate setup
+screens. Host/join controls retain direct address/UDP-port networking; pending
+connections can be canceled and failed attempts keep their address for retry.
+
+The lobby has four player cards (one in Sprint), local Edit/Remove actions,
+per-input handling, host-only Start and Match rules, a scrolling player editor,
+and a waiting message for clients. Existing player settings and game rules are
+preserved. Settings returns to the screen it was opened from. Keyboard focus,
+D-pad navigation and A/B menu actions work independently of gameplay bindings.
+Starting a match releases focus and disables header keyboard focus; result
+buttons regain it after a round. Menu artwork is static and shares the existing
+beveled tile. Gameplay, simulation timing and protocol 7 are unchanged.
+
+### Verification
+
+Godot **4.6.3.stable.official.7d41c59c4**, Linux, with isolated preferences.
+
+- All existing **923** assertions passed, including settings persistence,
+  fullscreen restoration, input stress, controller disconnection and rendering.
+- **43 new menu assertions** passed: keyboard/D-pad/A/B navigation, page focus,
+  Settings return, empty address, cancellation and failure, roster add/edit/remove,
+  independent handling, full-lobby behavior, remote slot ownership, host/client
+  controls, Sprint setup, Start, hard-drop isolation, results and best-time refresh.
+  **966 total assertions, 0 failures.**
+- Five-process loopback multiplayer passed: four compatible participants and
+  deliberate rejection of a protocol 6 client.
+- Actual Compatibility-rendered menu, Network, local lobby, expanded rules,
+  Settings and Sprint screens were inspected. Main menu and lobby were also
+  checked at **960 × 600**, with the default captures at **1280 × 800**.
+  Native Enter-to-lobby, mouse Join and Enter-to-match were exercised.
+- Windows-preset resource export and a 120-frame Linux headless PCK startup
+  passed. New GDScript UIDs are included and `git diff --check` is clean.
+
+`tools/menu_capture.gd` reproduces the screenshots using actual controls; run it
+with isolated preferences because it saves sample player setup. These captures
+use Mesa software rendering and are **not a frame-pacing benchmark**. Controller
+button events were simulated; physical Windows/controller testing and a Windows
+executable release remain pending.
+
 ## Approved garbage rules update — 14 November 2026
 
 Source update based on `ad71b2c8cfd37f3035edf4ee27959fb9b32fafe2`, including

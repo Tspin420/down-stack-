@@ -6,8 +6,10 @@ A playable falling-block game with adjustable handling, delayed garbage, local m
 
 1. Extract the entire ZIP into a normal folder.
 2. Keep **Downstack.exe and Downstack.pck together**, then open Downstack.exe. No installer, administrator rights, account, or separate Godot installation is required.
-3. Choose Local match, 40-line sprint, or Host lobby. Enter your name, select a keyboard layout or connected controller, set your handling, then click Add / update player.
-4. Start the round. Add a second player on a different input device for local versus.
+3. Launch opens the Play menu. Choose **Local match**, **40-line sprint**, or **Network play**. In the lobby, enter your name, choose a keyboard layout or connected controller, set your handling, then select **Join as player** (or **Use this player** for Sprint).
+4. Select **Start practice** for one player or **Start match** for local versus. Add each player on a different input. Use **Edit** or **Remove** on a player card, and **Match rules** beside Start to adjust host settings.
+
+Navigate menus with arrow keys or the controller D-pad; Enter / the south face button (A / Cross) selects, and Esc / the east face button (B / Circle) goes back. The saved fullscreen choice is restored during startup. The T icon appears while resources load; there is no extra press-to-start screen.
 
 **Desktop shortcut:** open Settings and click **Create desktop shortcut**, or double-click **Create Desktop Shortcut.cmd** in the extracted game folder. This creates Downstack.lnk on your Windows desktop with the embedded T icon. It uses your actual Desktop location, including a redirected/OneDrive Desktop. Extract the entire ZIP first and keep the game folder in place afterward; the shortcut points there. Run the button/helper again after moving or updating the game. An existing Downstack game shortcut is updated. A different application’s shortcut with the same name is preserved and reported as a conflict. Downstack.ico is also included for manual icon customization.
 
@@ -94,7 +96,7 @@ DAS is the wait before a held direction starts repeating. ARR is the interval be
 
 Level 10 gives twice the repeat rate and half the initial repeat wait of level 5. The baseline is the previous prototype's reference falling-block game-inspired approximation, not a newly measured frame-perfect falling-block game timing claim. The simulation runs at 120 Hz. DAS falls on fixed ticks; intermediate ARR values retain their fractional remainder so adjacent slider levels have distinct average repeat rates.
 
-Handling applies per input profile. Select the keyboard or controller before changing values. Lobby sliders save immediately and update that device’s existing local player slot; use Add / update player when adding the slot or changing its name. On Settings, edits remain pending until Apply & back. The last player name is also saved. The app attempts to import the old Counterfall preferences when no Downstack preferences file exists. Saving new controls or sound settings does not overwrite them with legacy settings.
+Handling applies per input profile. Select the keyboard or controller before changing values. Lobby sliders save immediately and update that device’s existing local player slot; use Join as player to add a slot or Update player to change its name. On Settings, edits remain pending until Apply & back. The last player name is also saved. The app attempts to import the old Counterfall preferences when no Downstack preferences file exists. Saving new controls or sound settings does not overwrite them with legacy settings.
 
 ## 40-line sprint
 
@@ -104,17 +106,17 @@ Choose 40-line sprint, add one player, and start. The clock begins after the thr
 
 Up to four active players may share one room, with any mix of local and remote players. A computer may own two keyboard players plus gamepad players within that four-player total. Menus use the mouse; keyboard rollover depends on your keyboard.
 
-**LAN:** Select Host lobby. Other computers enter the host's LAN address and matching UDP port, then Join lobby. Add players on each computer. The host starts the round.
+**LAN:** Open **Network play → Create lobby**. Other computers open **Network play**, enter the host's LAN address and matching UDP port, then select **Join lobby**. A pending connection can be canceled; failed connections keep the address for retry. Add players on each computer. The host starts the round.
 
 **Internet:** Direct connections use the host's reachable address. The host's network must route the selected UDP port (default 42970) to that computer. Firewall permission and router port forwarding may be needed. There is no automatic NAT traversal or relay; carrier-grade NAT may prevent direct hosting.
 
 **Host as viewer:** Leave your player slots empty. Remote players join and add themselves; you can start/end rounds and watch without playing. Remote spectators likewise join without adding a player. The room accepts twelve remote computer connections plus the host, with four active players total.
 
-The host can end a round to return everyone to the lobby. Leaving as host closes the room; there is no host migration. A disconnected player's boards forfeit. Late joiners can watch, then add players in the next lobby. All participants must use network protocol 4 (versions 0.7 and 0.8). Earlier builds are incompatible because they exchange only 22 board rows.
+The host can end a round to return everyone to the lobby. Leaving as host closes the room; there is no host migration. A disconnected player's boards forfeit. Late joiners can watch, then add players in the next lobby. All participants must use this updated protocol 7 build. Earlier clients are rejected before entering the lobby.
 
 ## Remapping and soft drop
 
-Open **Settings** in the header, or **Rebind each key / button** in a lobby. Select the input profile on the left. Handling sliders appear below it in this order: DAS, ARR, soft drop. Individual action bindings are on the right. Click **Change** or **+ Bind input** beside any action, then press the desired key, controller button, D-pad direction, trigger, or stick direction. For an analog input, start at neutral, then press/move it deliberately. Keyboard bindings are individual physical keys, not modifier chords.
+Open **Settings** in the header, or **Change bindings** in a lobby. Select the input profile on the left. Handling sliders appear below it in this order: DAS, ARR, soft drop. Individual action bindings are on the right. Click **Change** or **+ Bind input** beside any action, then press the desired key, controller button, D-pad direction, trigger, or stick direction. For an analog input, start at neutral, then press/move it deliberately. Keyboard bindings are individual physical keys, not modifier chords.
 
 Reusing an input swaps its previous binding into the edited slot, preventing one input from silently firing two actions. The × buttons clear bindings. Every gameplay action must retain at least one binding before Apply & back is enabled; restart is optional. Apply & back saves all profiles edited on the page and returns to the previous screen. Cancel discards pending controls/handling edits across all profiles; Display changes are saved immediately and remain in effect. Reset this profile restores its default controls, level-5 DAS/ARR, and 20× gravity soft drop; Apply & back commits the reset. Esc cancels capture; outside capture it cancels the page. F11 remains reserved for fullscreen. Shared keys across the two keyboard profiles are flagged because they affect both players if both join.
 
@@ -175,10 +177,19 @@ godot --headless --path . --script tests/input_audit_test.gd
 godot --headless --path . --script tests/buffer_test.gd
 godot --headless --path . --script tests/desktop_test.gd
 godot --headless --path . --script tests/visual_test.gd
+godot --headless --path . --script tests/menu_test.gd
 python tests/run_network_tests.py
 ```
 
-Create the sibling build folder before exporting. The update/input/settings/input-audit/desktop tests write test preferences and personal bests; use isolated user-data directories when running them. Python 3 is needed only for the five-process loopback test launcher and the optional audio regeneration script, tools/make_audio.py. The launcher tests four compatible participants and rejection of an old-protocol client. The release shortcut helper can be regenerated with `python tools/make_shortcut_helper.py "../build/Create Desktop Shortcut.cmd"`. Set GODOT_BIN if the engine is not named godot on PATH.
+Create the sibling build folder before exporting. The update/input/settings/input-audit/desktop/menu tests write test preferences and personal bests; use isolated user-data directories when running them. Python 3 is needed only for the five-process loopback test launcher and the optional audio regeneration script, tools/make_audio.py. The launcher tests four compatible participants and rejection of an old-protocol client. The release shortcut helper can be regenerated with `python tools/make_shortcut_helper.py "../build/Create Desktop Shortcut.cmd"`. Set GODOT_BIN if the engine is not named godot on PATH.
+
+To reproduce the actual menu screenshots with a desktop display and isolated preferences:
+
+```text
+godot --path . --rendering-method gl_compatibility --audio-driver Dummy --script res://tools/menu_capture.gd -- --output=/absolute/path/to/captures
+```
+
+This fixture writes sample player preferences. Use an isolated user-data directory (for example, `XDG_DATA_HOME` on Linux); it is a visual fixture, not a performance benchmark.
 
 For repository setup, use the source folder as the project root and follow GITHUB_SETUP.md. Windows builds belong in Releases.
 

@@ -54,6 +54,7 @@ func _ready():
  display_message = _label("Keep the extracted game folder in place after creating its shortcut.",self,13)
  display_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
  var scroll = ScrollContainer.new()
+ scroll.follow_focus = true
  scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
  scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
  add_child(scroll)
@@ -130,7 +131,7 @@ func _ready():
 func _button(value: String,parent: Node,callback: Callable) -> Button:
  var button = Button.new()
  button.text = value
- button.focus_mode = Control.FOCUS_NONE
+ button.focus_mode = Control.FOCUS_ALL
  button.custom_minimum_size.y = 40
  parent.add_child(button)
  button.pressed.connect(callback)
@@ -159,7 +160,7 @@ func _input(event: InputEvent):
  if not is_visible_in_tree(): return
  if capture_action >= 0:
   _capture_event(event)
- elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
+ elif event.is_action_pressed("ui_cancel"):
   get_viewport().set_input_as_handled()
   _cancel()
 
