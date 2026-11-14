@@ -154,7 +154,7 @@ func run():
  b = Board.new(1,{"soft_drop":-1.0})
  b.piece = 7
  b.pos = Vector2i(3,Board.SPAWN_Y)
- b.lines = 10 # Normal interval 800 ms; soft interval 40 ms.
+ b.lines = 10 # Guideline level 2: 793 ms normal; 39.65 ms soft drop.
  b.step(TICK,Board.SOFT)
  y = b.pos.y
  for i in 24: b.step(TICK,Board.SOFT)

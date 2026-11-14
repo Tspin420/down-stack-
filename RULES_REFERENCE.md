@@ -59,7 +59,8 @@ gameplay balancing cap. Inserting more than 40 identical rows guarantees overflo
 the engine produces the identical final grid in at most 40 row operations, so an
 extreme packet cannot cause billions of simulation iterations.
 
-Protocol 7 carries numeric B2B state and one amount/hole pair per attack.
+Protocol 8 retains numeric B2B state and one amount/hole pair per attack while
+requiring the updated guideline gravity curve.
 Older clients are disconnected before lobby admission; everyone in a room must
 use the same updated build. Packet depths, hole columns and B2B counts are also
 replicated to spectators through validated board snapshots.
@@ -196,7 +197,7 @@ The receiver-side 1000 ms warning (adjustable), unlimited blocking while clearin
 
 The publicly available reproduction of the March 2009 Tetris Design Guideline, sections 5.5 and 7.1, describes soft drop at 20 times current gravity while retaining lock delay: https://studylib.net/doc/27262492/2009-tetris-design-guideline . This is a historical document hosted by a third party; the current private licensing specification was not verified.
 
-Downstack now defaults to that 20× gravity behavior. Fixed cells/second rates and Instant remain user-selectable alternatives. Normal gravity and other timing rules still use the custom values documented above.
+Downstack adopted that 20× gravity behavior in 0.3. Fixed cells/second rates and Instant remain user-selectable alternatives. The current gravity update also adopts the documented level 1–15 curve, with one level per ten cleared lines and a level-15 cap for continuing versus matches. Sprint stays at level 1. Other timing rules retain the custom values documented above; see SOFT_DROP_REFERENCE.md for the current gravity and soft-drop details.
 
 ## Updated soft-drop comparison in 0.5
 

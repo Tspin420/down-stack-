@@ -8,7 +8,7 @@ signal garbage_arrived(player_id, amount, hole, packet_id)
 signal closed(message)
 
 const Board = preload("res://scripts/board.gd")
-const PROTOCOL = 7
+const PROTOCOL = 8
 var online = false
 var hosting = false
 var running = false

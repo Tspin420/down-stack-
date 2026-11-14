@@ -28,6 +28,8 @@ const I_KICKS = {
  "30":[[0,0],[1,0],[-2,0],[1,-2],[-2,1]], "03":[[0,0],[-1,0],[2,0],[-1,2],[2,-1]]}
 # Wire-format bound, not a gameplay balance cap. Large attacks stay one packet.
 const MAX_ATTACK = 2147483647
+const MAX_GRAVITY_LEVEL = 15
+const DEFAULT_SOFT_DROP_FACTOR = 20.0
 
 var grid = []
 var queue = []
@@ -302,6 +304,14 @@ func reset_input():
  rotation_buffer = 0
  buffer_life = 0
 
+func gravity_interval_ms() -> float:
+ # March 2009 guideline, sections 6, 7 and 12.2: ten lines per level,
+ # (0.8 - (level - 1) * 0.007)^(level - 1) seconds per cell; Sprint stays
+ # at its starting level. Endless versus holds the last documented level.
+ if rules.mode == "sprint": return 1000.0
+ var stage = clampi(floori(lines/10.0),0,MAX_GRAVITY_LEVEL-1)
+ return 1000.0*pow(0.8-stage*0.007,stage)
+
 func step(dt_ms: float, mask: int, changes: Array = []) -> Array:
  events.clear()
  sounds.clear()
@@ -382,8 +392,7 @@ func _advance(dt_ms: float, mask: int, skip_das: bool = false):
   pos.y = target_y
   _lock()
   return
- var gravity = maxf(40.0,1000.0*pow(0.8,floori(lines/10.0)))
- if rules.mode == "sprint": gravity = 1000.0
+ var gravity = gravity_interval_ms()
  var instant_soft = bool(mask & SOFT) and float(handling.soft_drop) == 0.0
  if instant_soft:
   var distance = ghost_y()-pos.y
@@ -394,7 +403,7 @@ func _advance(dt_ms: float, mask: int, skip_das: bool = false):
   gravity_clock = 0.0
   soft_clock = 0.0
  elif mask & SOFT:
-  var interval = gravity/20.0 if float(handling.soft_drop) < 0 else minf(gravity,1000.0/maxf(1.0,float(handling.soft_drop)))
+  var interval = gravity/DEFAULT_SOFT_DROP_FACTOR if float(handling.soft_drop) < 0 else minf(gravity,1000.0/maxf(1.0,float(handling.soft_drop)))
   gravity_clock = 0.0
   while soft_clock <= 0.0001:
    soft_clock += interval
