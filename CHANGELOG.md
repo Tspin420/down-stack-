@@ -8,6 +8,12 @@ four player cards, Edit/Remove actions, a separate player setup panel, and
 Start/Match rules controls. Keyboard and controller focus work through menus,
 settings and results; gameplay releases focus to protect hard-drop inputs.
 
+Menus now use neon pink, blue and green borders on a dark violet palette.
+Removed the gravity toggle and Standard/Fast presets; Reset handling restores
+only the selected input’s DAS, ARR and soft drop. Online rooms automatically
+show CURRENTLY SPECTATING when no local player slot is present, including in
+the match view. No additional role-selection button is needed.
+
 Enlarged and centered Hold/Next previews, shifted the playfield right, and added
 the nonlinear incoming-garbage meter with separate amount and urgency cues.
 Blocks use a shared beveled tile, and adjacent cleared rows form one continuous
@@ -22,7 +28,7 @@ by the former 20-row router and 40-row receiver cutoffs. Perfect clears remain
 10 total before cancellation.
 
 Multiplayer protocol 7 carries numeric B2B state and the expanded attack range.
-All players and spectators need the updated build. All 966 automated checks and
+All players and spectators need the updated build. All 982 automated checks and
 the five-process multiplayer test passed on Linux/Godot 4.6.3, including old-client
 rejection. Resource export and startup passed; Windows runtime and frame-pacing
 validation remain pending. See RULES_REFERENCE.md and VALIDATION.md.

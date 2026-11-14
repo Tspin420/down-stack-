@@ -54,6 +54,23 @@ func run():
  await frame("settings.png")
  app._return_from_settings()
  app.room.close_session()
+ app._network()
+ app.port_field.value = 49888
+ app._host()
+ app.room._change(42,-1,"Player 1","Keyboard 1",166.6667,33.3333,false,-1.0)
+ app.room._change(43,-1,"Player 2","Keyboard 1",100.0,25.0,false,-1.0)
+ app.room.screens = 3
+ app._refresh_lobby()
+ # Avoid including machine network addresses in review captures.
+ app.status.text = "Hosted room"
+ await frame("Downstack_Spectator_Lobby.png")
+ root.size = Vector2i(960,600)
+ await frame("spectator_960x600.png")
+ root.size = Vector2i(1280,800)
+ app.room.begin()
+ app._physics_process(3.1)
+ await frame("spectator_match.png")
+ app.room.close_session()
  app._sprint()
  app._add_player()
  await frame("sprint_setup.png")
