@@ -153,7 +153,7 @@ static func binding_text(value: Dictionary) -> String:
  return "Unassigned"
 
 static func soft_text(rate: float) -> String:
- return "20× gravity · Default" if rate < 0 else ("Instant" if rate == 0 else "%d cells/sec"%int(rate))
+ return "Default" if rate < 0 else ("Instant" if rate == 0 else "%d cells/sec"%int(rate))
 
 static func from_event(event: InputEvent,device: int,ready_axes: Dictionary) -> Dictionary:
  if device < 0 and event is InputEventKey and event.pressed and not event.echo:

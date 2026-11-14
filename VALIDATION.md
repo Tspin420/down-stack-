@@ -17,23 +17,38 @@ preserved. Settings returns to the screen it was opened from. Keyboard focus,
 D-pad navigation and A/B menu actions work independently of gameplay bindings.
 Starting a match releases focus and disables header keyboard focus; result
 buttons regain it after a round. Menu artwork is static and shares the existing
-beveled tile. Gameplay, simulation timing and protocol 7 are unchanged.
+beveled tile. Neon pink is the primary accent, with blue and green mode badges
+and player-card borders on dark violet panels. The existing app icon is retained.
+Gameplay, simulation timing and protocol 7 are unchanged.
+
+The gravity/default toggle and Standard/Fast buttons are removed. Reset handling
+restores only the selected input’s DAS, ARR and default soft drop; bindings and
+other profiles remain intact. Lobby resets save immediately and update the
+joined player, while Settings resets remain a cancellable draft. Existing saved
+default, finite and Instant soft-drop behavior is retained. Online rooms show a
+CURRENTLY SPECTATING banner whenever the local computer owns no player slots,
+in the lobby, its Settings page and the match. No extra role selector is added.
 
 ### Verification
 
 Godot **4.6.3.stable.official.7d41c59c4**, Linux, with isolated preferences.
 
-- All existing **923** assertions passed, including settings persistence,
+- All **929 non-menu assertions** passed, including settings persistence,
   fullscreen restoration, input stress, controller disconnection and rendering.
-- **43 new menu assertions** passed: keyboard/D-pad/A/B navigation, page focus,
+  Six additional settings checks cover Reset handling, persistence, draft
+  cancellation and preservation of custom bindings and other profiles.
+- **53 menu assertions** passed: keyboard/D-pad/A/B navigation, page focus,
   Settings return, empty address, cancellation and failure, roster add/edit/remove,
   independent handling, full-lobby behavior, remote slot ownership, host/client
   controls, Sprint setup, Start, hard-drop isolation, results and best-time refresh.
-  **966 total assertions, 0 failures.**
+  Ten additional checks cover spectator hosts/clients, adding/removing multiple
+  local players, Settings, match entry and clearing the banner on leaving.
+  **982 total assertions, 0 failures.**
 - Five-process loopback multiplayer passed: four compatible participants and
   deliberate rejection of a protocol 6 client.
 - Actual Compatibility-rendered menu, Network, local lobby, expanded rules,
-  Settings and Sprint screens were inspected. Main menu and lobby were also
+  Settings and Sprint screens were inspected. Spectator lobby and match captures
+  include the automatic banner. Main menu, local lobby and spectator lobby were also
   checked at **960 × 600**, with the default captures at **1280 × 800**.
   Native Enter-to-lobby, mouse Join and Enter-to-match were exercised.
 - Windows-preset resource export and a 120-frame Linux headless PCK startup

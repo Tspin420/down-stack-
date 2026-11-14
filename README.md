@@ -9,6 +9,8 @@ A playable falling-block game with adjustable handling, delayed garbage, local m
 3. Launch opens the Play menu. Choose **Local match**, **40-line sprint**, or **Network play**. In the lobby, enter your name, choose a keyboard layout or connected controller, set your handling, then select **Join as player** (or **Use this player** for Sprint).
 4. Select **Start practice** for one player or **Start match** for local versus. Add each player on a different input. Use **Edit** or **Remove** on a player card, and **Match rules** beside Start to adjust host settings.
 
+Menus use neon pink accents with blue and green borders on the mode badges and player cards. The existing app icon is retained.
+
 Navigate menus with arrow keys or the controller D-pad; Enter / the south face button (A / Cross) selects, and Esc / the east face button (B / Circle) goes back. The saved fullscreen choice is restored during startup. The T icon appears while resources load; there is no extra press-to-start screen.
 
 **Desktop shortcut:** open Settings and click **Create desktop shortcut**, or double-click **Create Desktop Shortcut.cmd** in the extracted game folder. This creates Downstack.lnk on your Windows desktop with the embedded T icon. It uses your actual Desktop location, including a redirected/OneDrive Desktop. Extract the entire ZIP first and keep the game folder in place afterward; the shortcut points there. Run the button/helper again after moving or updating the game. An existing Downstack game shortcut is updated. A different application’s shortcut with the same name is preserved and reported as a conflict. Downstack.ico is also included for manual icon customization.
@@ -55,7 +57,7 @@ If shortcut creation is restricted by your Windows configuration, right-click Do
 ## Included from 0.4
 
 - Dedicated **Settings** page, available from the main menu and lobby, with click-to-bind primary and alternate inputs for every action.
-- **Soft-drop slider directly below ARR**, both on Settings and in the lobby. Slide through fixed speeds from 5 to 120 cells/second. Instant has its own toggle. The **20× gravity (default)** toggle restores gravity-scaled soft drop; moving the slider selects a fixed speed.
+- **Soft-drop slider directly below ARR**, both on Settings and in the lobby. Slide through fixed speeds from 5 to 120 cells/second. Instant has its own toggle. **Reset handling** restores the selected input’s default DAS, ARR and soft drop. The former gravity toggle and Standard/Fast presets are removed; moving the soft-drop slider selects a fixed speed.
 - Separate saved DAS, ARR, soft drop and bindings for each input profile. Existing 0.3 controls and soft-drop choices are retained, with old global DAS/ARR values used until a profile has its own saved handling.
 - Apply & back saves all edited profiles; Cancel discards pending Settings edits. Lobby slider changes save immediately and update existing local player slots for the next round.
 - Settings stays open when the online roster changes. A host-started round closes it and uses the last saved settings.
@@ -96,7 +98,7 @@ DAS is the wait before a held direction starts repeating. ARR is the interval be
 
 Level 10 gives twice the repeat rate and half the initial repeat wait of level 5. The baseline is the previous prototype's Puyo Puyo Tetris-inspired approximation, not a newly measured frame-perfect PPT timing claim. The simulation runs at 120 Hz. DAS falls on fixed ticks; intermediate ARR values retain their fractional remainder so adjacent slider levels have distinct average repeat rates.
 
-Handling applies per input profile. Select the keyboard or controller before changing values. Lobby sliders save immediately and update that device’s existing local player slot; use Join as player to add a slot or Update player to change its name. On Settings, edits remain pending until Apply & back. The last player name is also saved. The app attempts to import the old Counterfall preferences when no Downstack preferences file exists. Saving new controls or sound settings does not overwrite them with legacy settings.
+Handling applies per input profile. Select the keyboard or controller before changing values. Lobby sliders save immediately and update that device’s existing local player slot; use Join as player to add a slot or Update player to change its name. **Reset handling** restores level-5 DAS/ARR and default soft drop for the selected input without changing its bindings, name or other profiles. In the lobby it saves immediately; on Settings it updates the draft until Apply & back. The last player name is also saved. The app attempts to import the old Counterfall preferences when no Downstack preferences file exists. Saving new controls or sound settings does not overwrite them with legacy settings.
 
 ## 40-line sprint
 
@@ -110,7 +112,7 @@ Up to four active players may share one room, with any mix of local and remote p
 
 **Internet:** Direct connections use the host's reachable address. The host's network must route the selected UDP port (default 42970) to that computer. Firewall permission and router port forwarding may be needed. There is no automatic NAT traversal or relay; carrier-grade NAT may prevent direct hosting.
 
-**Host as viewer:** Leave your player slots empty. Remote players join and add themselves; you can start/end rounds and watch without playing. Remote spectators likewise join without adding a player. The room accepts twelve remote computer connections plus the host, with four active players total.
+**Host as viewer:** Leave your player slots empty. Remote players join and add themselves; you can start/end rounds and watch without playing. Remote spectators likewise join without adding a player. A **CURRENTLY SPECTATING** banner appears at the top whenever you have no player slot in an online room, including while watching a match. Adding a local player hides it; removing your last local player restores it. No extra spectator button is needed. The room accepts twelve remote computer connections plus the host, with four active players total.
 
 The host can end a round to return everyone to the lobby. Leaving as host closes the room; there is no host migration. A disconnected player's boards forfeit. Late joiners can watch, then add players in the next lobby. All participants must use this updated protocol 7 build. Earlier clients are rejected before entering the lobby.
 

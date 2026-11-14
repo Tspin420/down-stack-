@@ -12,6 +12,9 @@ const InputStream = preload("res://scripts/input_stream.gd")
 const FullscreenShortcut = preload("res://scripts/fullscreen_shortcut.gd")
 const DesktopShortcut = preload("res://scripts/desktop_shortcut.gd")
 const MenuArt = preload("res://scripts/menu_art.gd")
+const NEON_PINK = "ff4fbd"
+const NEON_BLUE = "44ceff"
+const NEON_GREEN = "75ffb6"
 var fullscreen_shortcut
 var fullscreen_button: Button
 var fullscreen_enabled = false
@@ -88,6 +91,8 @@ var waiting_label: Label
 var player_setup_title: Label
 var player_scroll: ScrollContainer
 var rules_expanded = false
+var spectator_banner: PanelContainer
+var spectator_label: Label
 
 func _ready():
  _make_theme()
@@ -134,7 +139,7 @@ func _menu_inputs():
   event.button_index = JOY_BUTTON_A if action == "ui_accept" else JOY_BUTTON_B
   if not InputMap.action_has_event(action,event): InputMap.action_add_event(action,event)
 
-func _style(color: String,border: String = "28384b") -> StyleBoxFlat:
+func _style(color: String,border: String = "3b3154") -> StyleBoxFlat:
  var s = StyleBoxFlat.new()
  s.bg_color = Color(color)
  s.border_color = Color(border)
@@ -146,21 +151,27 @@ func _style(color: String,border: String = "28384b") -> StyleBoxFlat:
  s.content_margin_bottom = 10
  return s
 
+func _neon_style(color: String,accent: String) -> StyleBoxFlat:
+ var style = _style(color,accent)
+ style.shadow_color = Color(Color(accent),0.14)
+ style.shadow_size = 6
+ return style
+
 func _make_theme():
  var t = Theme.new()
  t.default_font_size = 16
- t.set_color("font_color","Label",Color("dbe5f2"))
+ t.set_color("font_color","Label",Color("eeeafa"))
  for type in ["Button","OptionButton"]:
-  t.set_stylebox("normal",type,_style("19283a"))
-  t.set_stylebox("hover",type,_style("284252","6ed5bd"))
-  t.set_stylebox("pressed",type,_style("284f51","6ed5bd"))
-  t.set_stylebox("disabled",type,_style("101a28"))
-  var focus = _style("00000000","78e5cf")
+  t.set_stylebox("normal",type,_style("191a30"))
+  t.set_stylebox("hover",type,_neon_style("30203d",NEON_PINK))
+  t.set_stylebox("pressed",type,_style("411c40",NEON_PINK))
+  t.set_stylebox("disabled",type,_style("10121e","242436"))
+  var focus = _style("00000000",NEON_PINK)
   focus.set_border_width_all(2)
   t.set_stylebox("focus",type,focus)
-  t.set_color("font_color",type,Color("e2edf6"))
- t.set_stylebox("normal","LineEdit",_style("0b1420"))
- t.set_stylebox("focus","LineEdit",_style("0b1420","6ed5bd"))
+  t.set_color("font_color",type,Color("f7edff"))
+ t.set_stylebox("normal","LineEdit",_style("0c1020"))
+ t.set_stylebox("focus","LineEdit",_style("0c1020",NEON_BLUE))
  t.set_color("font_color","LineEdit",Color("edf5ff"))
  t.set_color("font_color","SpinBox",Color.WHITE)
  theme = t
@@ -184,13 +195,13 @@ func _button(text_value: String,parent: Node,callback: Callable) -> Button:
  return b
 
 func _primary(button: Button):
- button.add_theme_stylebox_override("normal",_style("1b4a48","4bc8b1"))
- button.add_theme_stylebox_override("hover",_style("245e58","83f0d9"))
- button.add_theme_stylebox_override("pressed",_style("163a38","83f0d9"))
+ button.add_theme_stylebox_override("normal",_neon_style("38182f",NEON_PINK))
+ button.add_theme_stylebox_override("hover",_neon_style("512244","ff90d7"))
+ button.add_theme_stylebox_override("pressed",_style("251325",NEON_PINK))
 
-func _panel(parent: Node,color: String = "101c2b") -> VBoxContainer:
+func _panel(parent: Node,color: String = "111426") -> VBoxContainer:
  var panel = PanelContainer.new()
- panel.add_theme_stylebox_override("panel",_style(color,"263b50"))
+ panel.add_theme_stylebox_override("panel",_style(color,"473257"))
  panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  parent.add_child(panel)
  var column = VBoxContainer.new()
@@ -198,11 +209,16 @@ func _panel(parent: Node,color: String = "101c2b") -> VBoxContainer:
  panel.add_child(column)
  return column
 
-func _mode_button(title_value: String,subtitle: String,number: String,parent: Node,callback: Callable) -> Button:
+func _mode_button(title_value: String,subtitle: String,number: String,parent: Node,callback: Callable,accent: String = NEON_PINK) -> Button:
  var button = _button("",parent,callback)
  button.name = title_value.to_pascal_case()
  button.tooltip_text = title_value+" · "+subtitle
  button.custom_minimum_size.y = 96
+ button.add_theme_stylebox_override("normal",_neon_style("14162a",accent))
+ button.add_theme_stylebox_override("hover",_neon_style("27203a",accent))
+ var focus = _style("00000000",accent)
+ focus.set_border_width_all(2)
+ button.add_theme_stylebox_override("focus",focus)
  var margin = MarginContainer.new()
  margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
  margin.add_theme_constant_override("margin_left",22)
@@ -214,7 +230,16 @@ func _mode_button(title_value: String,subtitle: String,number: String,parent: No
  row.add_theme_constant_override("separation",22)
  row.mouse_filter = Control.MOUSE_FILTER_IGNORE
  margin.add_child(row)
- var tag = _label(number,row,22,"75dcca")
+ var badge = PanelContainer.new()
+ badge.custom_minimum_size = Vector2(50,50)
+ badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+ badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ var badge_style = _neon_style("0b0e1d",accent)
+ badge_style.set_content_margin_all(6)
+ badge.add_theme_stylebox_override("panel",badge_style)
+ row.add_child(badge)
+ var tag = _label(number,badge,20,accent)
+ tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
  tag.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
  tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
  var column = VBoxContainer.new()
@@ -222,9 +247,9 @@ func _mode_button(title_value: String,subtitle: String,number: String,parent: No
  column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  column.mouse_filter = Control.MOUSE_FILTER_IGNORE
  row.add_child(column)
- _label(title_value,column,25,"eef8f6").mouse_filter = Control.MOUSE_FILTER_IGNORE
- _label(subtitle,column,15,"a2b8ca").mouse_filter = Control.MOUSE_FILTER_IGNORE
- var arrow = _label("›",row,28,"8aafa9")
+ _label(title_value,column,25,"f6edff").mouse_filter = Control.MOUSE_FILTER_IGNORE
+ _label(subtitle,column,15,"b2a6c6").mouse_filter = Control.MOUSE_FILTER_IGNORE
+ var arrow = _label("›",row,28,accent)
  arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
  arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
  return button
@@ -262,13 +287,18 @@ func _build_ui():
  var header = HBoxContainer.new()
  header.add_theme_constant_override("separation",10)
  page.add_child(header)
+ var icon_frame = PanelContainer.new()
+ var icon_border = _neon_style("0b0e1d",NEON_PINK)
+ icon_border.set_content_margin_all(5)
+ icon_frame.add_theme_stylebox_override("panel",icon_border)
+ header.add_child(icon_frame)
  var icon = TextureRect.new()
  icon.texture = preload("res://assets/icon.png")
  icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
  icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
- icon.custom_minimum_size = Vector2(42,42)
- header.add_child(icon)
- var brand = _label("DOWNSTACK",header,25,"e6f5ed")
+ icon.custom_minimum_size = Vector2(32,32)
+ icon_frame.add_child(icon)
+ var brand = _label("DOWNSTACK",header,25,"f6edff")
  brand.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  brand.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
  menu_back = _button("Back",header,_go_back)
@@ -277,8 +307,15 @@ func _build_ui():
  fullscreen_button.tooltip_text = "Toggle fullscreen (F11). Your choice is saved."
  sound_button = _button("Sound",header,func(): audio_dialog.popup_centered(Vector2i(500,240)))
  _build_audio_dialog()
- status = _label("",page,14,"8ea6bd")
+ status = _label("",page,14,"a394b5")
  status.custom_minimum_size.y = 20
+ spectator_banner = PanelContainer.new()
+ spectator_banner.add_theme_stylebox_override("panel",_neon_style("241429",NEON_PINK))
+ page.add_child(spectator_banner)
+ spectator_label = _label("CURRENTLY SPECTATING · Add a player in the lobby to join the match.",spectator_banner,14,"ff9fdf")
+ spectator_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+ spectator_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+ spectator_banner.hide()
  body = HBoxContainer.new()
  body.size_flags_vertical = Control.SIZE_EXPAND_FILL
  page.add_child(body)
@@ -296,14 +333,14 @@ func _build_ui():
  modes.alignment = BoxContainer.ALIGNMENT_CENTER
  modes.add_theme_constant_override("separation",14)
  menu_row.add_child(modes)
- _label("MAIN MENU",modes,13,"6ed5bd")
- _label("Play",modes,58,"eff9f6")
- _label("Choose a mode to get started.",modes,17,"91aac0")
+ _label("MAIN MENU",modes,13,"ff4fbd")
+ _label("Play",modes,58,"f6edff")
+ _label("Choose a mode to get started.",modes,17,"a99cbd")
  _space(modes,8)
  menu_local = _mode_button("Local match","1–4 players on this computer","01",modes,_local)
  _primary(menu_local)
- menu_sprint = _mode_button("40-line sprint","One player. Beat your best time.","02",modes,_sprint)
- menu_network = _mode_button("Network play","Host a room or join a friend.","03",modes,_network)
+ menu_sprint = _mode_button("40-line sprint","One player. Beat your best time.","02",modes,_sprint,NEON_BLUE)
+ menu_network = _mode_button("Network play","Host a room or join a friend.","03",modes,_network,NEON_GREEN)
  var menu_actions = HBoxContainer.new()
  modes.add_child(menu_actions)
  _button("Quit game",menu_actions,func(): get_tree().quit()).custom_minimum_size.x = 140
@@ -316,8 +353,8 @@ func _build_ui():
  art.custom_minimum_size = Vector2(400,340)
  feature.add_child(art)
  var record = _panel(feature)
- _label("40-LINE SPRINT / PERSONAL BEST",record,13,"82adba")
- menu_best = _label("",record,36,"e4f6ed")
+ _label("40-LINE SPRINT / PERSONAL BEST",record,13,"44ceff")
+ menu_best = _label("",record,36,"f6edff")
  _label("Saved on this computer",record,13,"718ba4")
 
  network_page = VBoxContainer.new()
@@ -326,22 +363,22 @@ func _build_ui():
  body.add_child(network_page)
  network_page.hide()
  _space(network_page,28)
- _label("NETWORK PLAY",network_page,13,"6ed5bd")
- _label("Play together",network_page,42,"eef7f4")
- _label("Choose who hosts the room. Add your players after connecting.",network_page,18,"95aec4")
+ _label("NETWORK PLAY",network_page,13,"ff4fbd")
+ _label("Play together",network_page,42,"f6edff")
+ _label("Choose who hosts the room. Add your players after connecting.",network_page,18,"b2a6c6")
  _space(network_page,12)
  var connections = HBoxContainer.new()
  connections.add_theme_constant_override("separation",24)
  network_page.add_child(connections)
  var host = _panel(connections)
- _label("Host a room",host,28,"e4f6ee")
- _label("Create a lobby for friends to join.",host,16,"95aec4")
+ _label("Host a room",host,28,"f6edff")
+ _label("Create a lobby for friends to join.",host,16,"b2a6c6")
  _space(host,16)
  host_button = _button("Create lobby",host,_host)
  _primary(host_button)
  var join = _panel(connections)
- _label("Join a room",join,28,"e4f6ee")
- _label("Enter the address shared by your host.",join,16,"95aec4")
+ _label("Join a room",join,28,"f6edff")
+ _label("Enter the address shared by your host.",join,16,"b2a6c6")
  address_field = LineEdit.new()
  address_field.placeholder_text = "Host address"
  address_field.custom_minimum_size = Vector2(320,44)
@@ -362,7 +399,7 @@ func _build_ui():
  advanced.add_child(port_field)
  var port_hint = _label("Use the same port as the host.",advanced,14,"718ba4")
  port_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
- var network_hint = _label("For internet play, the host may need to forward this port on their router.",network_page,14,"829bb4")
+ var network_hint = _label("For internet play, the host may need to forward this port on their router.",network_page,14,"9e90b2")
  network_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
  lobby = HBoxContainer.new()
@@ -374,8 +411,8 @@ func _build_ui():
  left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  left.add_theme_constant_override("separation",14)
  lobby.add_child(left)
- lobby_title = _label("LOCAL LOBBY",left,34,"edf8f4")
- roster_note = _label("",left,15,"8eb4bb")
+ lobby_title = _label("LOCAL LOBBY",left,34,"f6edff")
+ roster_note = _label("",left,15,"b49ec7")
  roster_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
  player_list = GridContainer.new()
  player_list.columns = 2
@@ -383,7 +420,7 @@ func _build_ui():
  player_list.add_theme_constant_override("h_separation",14)
  player_list.add_theme_constant_override("v_separation",14)
  left.add_child(player_list)
- waiting_label = _label("",left,15,"8eb4bb")
+ waiting_label = _label("",left,15,"b49ec7")
  var start_actions = HBoxContainer.new()
  start_actions.add_theme_constant_override("separation",12)
  left.add_child(start_actions)
@@ -393,7 +430,7 @@ func _build_ui():
  _primary(start_button)
  var setup_panel = PanelContainer.new()
  setup_panel.custom_minimum_size.x = 416
- setup_panel.add_theme_stylebox_override("panel",_style("101c2b","263b50"))
+ setup_panel.add_theme_stylebox_override("panel",_neon_style("111426",NEON_PINK))
  lobby.add_child(setup_panel)
  player_scroll = ScrollContainer.new()
  player_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -403,14 +440,14 @@ func _build_ui():
  right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  right.add_theme_constant_override("separation",12)
  player_scroll.add_child(right)
- player_setup_title = _label("YOUR PLAYER",right,18,"e4f6ed")
- _label("Name",right,13,"8da5bc")
+ player_setup_title = _label("YOUR PLAYER",right,18,"f6edff")
+ _label("Name",right,13,"a99cbd")
  name_field = LineEdit.new()
  name_field.placeholder_text = "Player name"
  name_field.text = "Player"
  name_field.custom_minimum_size.y = 42
  right.add_child(name_field)
- _label("Keyboard or controller",right,13,"8da5bc")
+ _label("Keyboard or controller",right,13,"a99cbd")
  devices = OptionButton.new()
  devices.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
  devices.custom_minimum_size.y = 44
@@ -418,21 +455,16 @@ func _build_ui():
  devices.item_selected.connect(func(_i): _load_lobby_handling())
  _button("Change bindings",right,_open_settings)
  _space(right,3)
- _label("HANDLING",right,13,"75cdbb")
+ _label("HANDLING",right,13,"ff4fbd")
  lobby_handling = HandlingControls.new()
  right.add_child(lobby_handling)
  das_field = lobby_handling.das
  arr_field = lobby_handling.arr
  lobby_handling.changed.connect(_lobby_handling_changed)
- var presets = HBoxContainer.new()
- presets.add_theme_constant_override("separation",8)
- right.add_child(presets)
- _button("Standard · 5",presets,func(): das_field.value=5;arr_field.value=5).size_flags_horizontal = Control.SIZE_EXPAND_FILL
- _button("Fast · 10",presets,func(): das_field.value=10;arr_field.value=10).size_flags_horizontal = Control.SIZE_EXPAND_FILL
  add_button = _button("Join as player",right,_add_player)
  add_button.custom_minimum_size.y = 50
  _primary(add_button)
- player_help = _label("",right,13,"829bb4")
+ player_help = _label("",right,13,"9e90b2")
  player_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
  rules_toggle = _button("Match rules  +",start_actions,_toggle_rules)
  rules_toggle.custom_minimum_size.y = 56
@@ -448,12 +480,12 @@ func _build_ui():
  clear_field.add_item("Custom pace · 250 ms",250)
  rule_panel.add_child(clear_field)
  rule_panel.hide()
- sprint_help = _label("Clear 40 lines as fast as you can. Your best time saves automatically.",right,14,"78d9c3")
+ sprint_help = _label("Clear 40 lines as fast as you can. Your best time saves automatically.",right,14,"75ffb6")
  sprint_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
  sprint_help.hide()
  garbage_field.value_changed.connect(func(_v): _apply_rules())
  clear_field.item_selected.connect(func(_i): _apply_rules())
- rules_help = _label("",right,13,"829bb4")
+ rules_help = _label("",right,13,"9e90b2")
  rules_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
  play_panel = VBoxContainer.new()
@@ -463,7 +495,7 @@ func _build_ui():
  play_panel.hide()
  var match_header = HBoxContainer.new()
  play_panel.add_child(match_header)
- play_top = _label("",match_header,21,"dff5ec")
+ play_top = _label("",match_header,21,"f6edff")
  play_top.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  end_button = _button("End round",match_header,func(): _restart_sprint() if session_kind == "sprint" and disconnected_inputs.is_empty() else room.back_to_lobby())
  end_button.focus_mode = Control.FOCUS_NONE
@@ -515,7 +547,7 @@ func _build_audio_dialog():
   slider.custom_minimum_size.x = 230
   slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
   row.add_child(slider)
-  var amount = _label("%d%%"%int(slider.value),row,16,"78d9c3")
+  var amount = _label("%d%%"%int(slider.value),row,16,"75ffb6")
   amount.custom_minimum_size.x = 48
   slider.value_changed.connect(func(v):
    amount.text = "%d%%"%int(v)
@@ -559,6 +591,13 @@ func _menu_state():
  menu_best.text = Handling.time_text(best) if best > 0 else "Set your first time"
  menu_footer.text = "Arrow keys / D-pad to move · Enter / A to select · Esc / B to go back · F11 fullscreen"
  if mode == "game": menu_footer.text = "DOWNSTACK  /  PLAY TOGETHER"
+ _update_spectator_status()
+
+func _update_spectator_status():
+ var in_room = mode in ["lobby","game"] or (mode == "settings" and settings_return_mode == "lobby")
+ var has_player = room.roster.any(func(p): return p.owner == room.local_id())
+ spectator_banner.visible = in_room and room.online and not has_player
+ spectator_label.text = "CURRENTLY SPECTATING · Watching this match." if mode == "game" else "CURRENTLY SPECTATING · Add a player in the lobby to join the match."
 
 func _focus_menu():
  if not is_inside_tree(): return
@@ -789,7 +828,7 @@ func _refresh_lobby():
  var mine = room.roster.filter(func(p): return p.owner == room.local_id()).size()
  var sprint = session_kind == "sprint"
  lobby_title.text = "40-line sprint" if sprint else ("Network lobby" if room.online else "Local lobby")
- player_help.text = "Choose your input, then use this player." if sprint else "Each input owns one board. Leave your slots empty to spectate a network match."
+ player_help.text = "Choose your input, then use this player." if sprint else "Each input owns one board. Handling is saved separately for every player."
  roster_note.text = "%d / 4 players · %d connected screen%s"%[room.roster.size(),room.screens,"s" if room.screens != 1 else ""] if room.online else "%d / 4 players · All on this computer"%room.roster.size()
  if sprint:
   var best = float(config.get_value("sprint","best_ms",0.0))
@@ -807,23 +846,24 @@ func _refresh_lobby():
   panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
   panel.custom_minimum_size.y = 210
   var occupied = i < room.roster.size()
-  panel.add_theme_stylebox_override("panel",_style("132638" if occupied else "0d1724","335461" if occupied else "213244"))
+  var accent = [NEON_PINK,NEON_BLUE,NEON_GREEN,NEON_PINK][i]
+  panel.add_theme_stylebox_override("panel",_neon_style("1a1830",accent) if occupied else _style("0c0f1d","35304b"))
   player_list.add_child(panel)
   var column = VBoxContainer.new()
   column.alignment = BoxContainer.ALIGNMENT_CENTER
   column.add_theme_constant_override("separation",10)
   panel.add_child(column)
-  _label("PLAYER %02d"%(i+1),column,12,"78c9bd" if occupied else "5a7189")
+  _label("PLAYER %02d"%(i+1),column,12,accent if occupied else "857695")
   if occupied:
    var p = room.roster[i]
-   var player_name = _label(p.name,column,28,"ecf7f4")
+   var player_name = _label(p.name,column,28,"f6edff")
    player_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
    player_name.tooltip_text = p.name
    var input_label = _label(("LOCAL  ·  " if p.owner == room.local_id() else "REMOTE  ·  ")+p.input,column,14,"a4bbca")
    input_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
    input_label.tooltip_text = p.input
    _label("DAS %d / ARR %d"%[Handling.level_for_ms("das",p.das),Handling.level_for_ms("arr",p.arr)],column,14,"9eb6c8")
-   _label("Soft drop: "+InputSettings.soft_text(p.get("soft_drop",-1.0)),column,13,"78d9c3")
+   _label("Soft drop: "+InputSettings.soft_text(p.get("soft_drop",-1.0)),column,13,"75ffb6")
    if p.owner == room.local_id():
     var actions = HBoxContainer.new()
     actions.add_theme_constant_override("separation",8)
@@ -931,6 +971,8 @@ func _finish_sprint(board):
 
 func _closed(message: String):
  var failed_connection = mode == "connecting"
+ rules_expanded = false
+ player_scroll.scroll_vertical = 0
  settings_page.close_page()
  mode = "network" if failed_connection else "home"
  _menu_state()
