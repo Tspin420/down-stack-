@@ -85,8 +85,6 @@ Fixed a reproduced controller soft-drop bug. Brief release/repress events previo
 
 Moved Instant soft drop to an explicit toggle; the slider directly below ARR now ends at a finite 120 cells/second. Existing saved choices are preserved. Individual bindings now visibly say Change or + Bind input, and the lobby links directly to Rebind each key / button.
 
-Added SOFT_DROP_REFERENCE.md, cross-checking historical rules references, public settings, manuals and gameplay guides. The research citations are retained in docs/RESEARCH_SOURCES.md. Keeps the distinction between 20× gravity, fixed cells/second and explicit Instant. Exact commercial-game numeric timing is not claimed where it could not be verified.
-
 All 337 automated checks passed, including 48 new controller-drop checks and 38 settings checks, plus four-process loopback multiplayer. Controller input was simulated; actual Windows/controller hardware is not available here. Network protocol remains 3. The Windows build is unsigned.
 
 # Downstack 0.4.0

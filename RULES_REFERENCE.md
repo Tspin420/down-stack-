@@ -104,10 +104,3 @@ all-ready-rows rise policy remains; no eight-row rise cap is applied. Perfect cl
 not a claim that all discussed ideas are implemented or that either game is copied
 exactly. Blocking was already present in Downstack and now has focused regression
 coverage for the newly agreed behavior.
-
-### Development references
-
-The external research and superseded version 0.8 comparison are retained in
-[the development source record](docs/RESEARCH_SOURCES.md). They are not
-product branding or the current rule specification. The tests verify
-Downstack behavior, not another game executable or formal certification.

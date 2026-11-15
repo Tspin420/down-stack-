@@ -80,8 +80,6 @@ def build(destination):
                      "RULES_REFERENCE.md", "SOFT_DROP_REFERENCE.md", "INPUT_AUDIT.md",
                      "BUFFER_NOTES.md", "BRANDING.md", "LICENSE.txt"):
             shutil.copy2(ROOT / name, stage / name)
-        (stage / "docs").mkdir()
-        shutil.copy2(ROOT / "docs/RESEARCH_SOURCES.md", stage / "docs/RESEARCH_SOURCES.md")
         shutil.copytree(ROOT / "licenses", stage / "licenses")
         # Test the release binary on Windows; on other hosts load its actual PCK.
         with tempfile.TemporaryDirectory(prefix="downstack-smoke-") as profile:

@@ -166,8 +166,3 @@ For the repeatable test/package commands and automated Windows release workflow,
 Project code is supplied under MIT. Godot engine/third-party notices are in licenses. The icon was generated for Downstack; audio was synthesized for this project, with its generation source included.
 
 ## Project identity and development sources
-
-See [BRANDING.md](BRANDING.md) for naming and release-review guidance.
-External research references are retained separately in
-[docs/RESEARCH_SOURCES.md](docs/RESEARCH_SOURCES.md). Third-party licenses
-and notices remain in `licenses/`; changing wording is not legal clearance.

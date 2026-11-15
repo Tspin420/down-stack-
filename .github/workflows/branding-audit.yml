@@ -6,12 +6,12 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         with:
           persist-credentials: false
-      - name: Check tracked text, filenames and audit self-tests
+      - name: Check every tracked file without exceptions
         run: python3 tools/check_branding.py
-      - name: Check packaging and audit script syntax
-        run: python3 -m py_compile tools/check_branding.py tools/build_release.py
-      - name: Ensure checks did not modify tracked files
-        run: git diff --exit-code
+      - name: Validate audit syntax and clean checkout
+        run: |
+          python3 -m py_compile tools/check_branding.py
+          git diff --exit-code

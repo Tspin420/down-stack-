@@ -84,16 +84,6 @@ other profiles remain intact. Lobby resets save immediately and update the
 joined player, while Settings resets remain a cancellable draft. Existing saved
 default, finite and Instant soft-drop behavior is retained.
 
-DAS, ARR and soft drop share the same 0–10 track and numeric readout; 0 selects
-the existing default on each control. Custom speeds keep their previous values,
-with an added 75 cells/second finite step. Reset handling puts all three at 0.
-Default soft drop at zero uses 20× normal gravity. Historical research is
-retained in docs/RESEARCH_SOURCES.md; exact timing parity with other games
-remains unverified. Default soft drop now follows the
-corrected gravity curve. Instant stays a separate toggle and retains lock delay.
-Online rooms show a CURRENTLY SPECTATING banner whenever the local computer owns no player slots,
-in the lobby, its Settings page and the match. No extra role selector is added.
-
 ### Verification
 
 Godot **4.6.3.stable.official.7d41c59c4**, Linux, with isolated preferences.
@@ -374,11 +364,6 @@ isolated user-data directories for tests that write preferences.
 
 To compare an earlier local renderer instead of the repository baseline, add
 `--baseline-file /path/to/previous_board_view.gd` to the capture command.
-
-The visual-convention research citation is retained in
-[the development source record](docs/RESEARCH_SOURCES.md). This proposal uses
-Downstack’s existing timing and cancellation rules; it does not claim to
-reproduce another game’s complete attack system.
 
 ---
 

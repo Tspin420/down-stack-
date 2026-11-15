@@ -18,13 +18,6 @@ The regression fixture starts a horizontal I at its normal post-entry height, pl
 - Hidden cells remain solid for movement/rotation and can return to view when rows below them clear.
 - The visible floor, spawn location relative to the skyline, handling and lock delay are unchanged. The renderer displays only the 20 visible rows and clips hidden active/ghost cells.
 
-## Reference and limits
-
-The historical research behind the buffer dimensions and top-out choices
-is retained in [the development source record](docs/RESEARCH_SOURCES.md).
-The boundaries above describe Downstack’s implementation; they are not a
-certification or a verified recreation of another game’s complete system.
-
 ## Tests and networking
 
 The new `tests/buffer_test.gd` contains **89 checks** for spawn heights, all eight I quarter-turn transitions at five heights, forced upward kick, partial/whole hidden locks, blocked spawns, hidden collisions, line compaction, garbage push/overflow, real ceiling/floor bounds, ghost, hard drop, hold, snapshot round trips and rejection of old 22-row states. All **640 checks** pass across the full suite.
