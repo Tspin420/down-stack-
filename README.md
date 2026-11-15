@@ -53,7 +53,7 @@ DAS is the wait before a held direction starts repeating. ARR is the interval be
 | --- | ---: | ---: |
 | 0 — default | 166.67 | 33.33 |
 | 1 | 300.00 | 100.00 |
-| 2 | 266.67 | 93.33 |
+| 2 | 266.67 | 83.33 |
 | 3 | 233.33 | 66.67 |
 | 4 | 200.00 | 50.00 |
 | 5 — baseline | 166.67 | 33.33 |
@@ -69,7 +69,7 @@ Handling applies per input profile. Select the keyboard or controller before cha
 
 ## 40-line sprint
 
-Choose 40-line sprint, add one player, and start. The clock begins after the three-second countdown and freezes on the piece that reaches or exceeds 40 cleared lines. A top-out does not replace your best completed time. Best time is stored locally in the game's preferences.
+Choose 40-line sprint, add one player, and start. The clock begins after the three-second countdown and freezes on the piece that reaches or exceeds 40 cleared lines. There is no incoming or outgoing garbage. Both clear and entry delay are zero, with fixed 1-row/second gravity and the normal 500 ms lock delay. Your assigned restart input (R by default on keyboard, Start / Options on gamepad) or the on-screen Restart button starts a fresh bag seed and countdown. A top-out does not replace your best completed time. Best time is stored locally in the game's preferences.
 
 ## Local and online rooms
 
@@ -79,7 +79,7 @@ Up to four active players may share one room, with any mix of local and remote p
 
 **Internet:** Direct connections use the host's reachable address. The host's network must route the selected UDP port (default 42970) to that computer. Firewall permission and router port forwarding may be needed. There is no automatic NAT traversal or relay; carrier-grade NAT may prevent direct hosting.
 
-**Host as viewer:** Leave your player slots empty. Remote players join and add themselves; you can start/end rounds and watch without playing. A **CURRENTLY SPECTATING** banner appears at the top whenever you have no player slot in an online room, including while watching a match. Adding a local player hides it; removing your last local player restores it. No extra spectator button is needed. The room accepts twelve remote computer connections plus the host, with four active players total.
+**Host as viewer:** Leave your player slots empty. Remote players join and add themselves; you can start/end rounds and watch without playing. Remote spectators likewise join without adding a player. A **CURRENTLY SPECTATING** banner appears at the top whenever you have no player slot in an online room, including while watching a match. Adding a local player hides it; removing your last local player restores it. No extra spectator button is needed. The room accepts twelve remote computer connections plus the host, with four active players total.
 
 The host can end a round to return everyone to the lobby. Leaving as host closes the room; there is no host migration. A disconnected player's boards forfeit. Late joiners can watch, then add players in the next lobby. All participants must use this updated protocol 8 build. Earlier clients are rejected before entering the lobby so different gravity curves cannot share a match.
 
@@ -87,7 +87,7 @@ The host can end a round to return everyone to the lobby. Leaving as host closes
 
 Open **Settings** in the header, or **Change bindings** in a lobby. Select the input profile on the left. Handling sliders appear below it in this order: DAS, ARR, soft drop. Individual action bindings are on the right. Click **Change** or **+ Bind input** beside any action, then press the desired key, controller button, D-pad direction, trigger, or stick direction. For an analog input, start at neutral, then press/move it deliberately. Keyboard bindings are individual physical keys, not modifier chords.
 
-Reusing an input swaps its previous binding into the edited slot, preventing one input from silently firing two actions. The × buttons clear bindings. Every gameplay action must retain at least one binding before Apply & back is enabled; restart is optional. Apply & back saves all profiles edited on the page and returns to the previous screen. Cancel discards pending controls/handling edits across all profiles; Display changes are saved immediately and remain in effect. Reset this profile restores the default controls and handling for the selected profile. Reset this profile restores the default controls and handling for the selected profile. Reset this profile restores the default controls and handling for the selected profile. Reset this profile restores the default controls and handling for the selected profile. Reset this profile restores the default controls and handling for the selected profile. Reset this profile restores the default controls and handling for the selected profile. Reset this profile restores the default controls and handling for the selected profile. Reset this profile restores the default controls and handling for the selected profile.
+Reusing an input swaps its previous binding into the edited slot, preventing one input from silently firing two actions. The × buttons clear bindings. Every gameplay action must retain at least one binding before Apply & back is enabled; restart is optional. Apply & back saves all profiles edited on the page and returns to the previous screen. Cancel discards pending controls/handling edits across all profiles; Display changes are saved immediately and remain in effect. Reset this profile restores its default controls, level-0 DAS/ARR, and level-0 (20× gravity) soft drop; Apply & back commits the reset. Esc cancels capture; outside capture it cancels the page. F11 remains reserved for fullscreen. Shared keys across the two keyboard profiles are flagged because they affect both players if both join.
 
 Settings are local and persist across launches. Keyboard profiles are separate. Controller profiles use the controller's reported model/GUID, with connection order separating identical controllers. A different connection order for identical pads may change which saved profile they use. Controller hotplug updates the selector and cancels any capture. A disconnected controller is blocked for the rest of that round, even if the same runtime ID reconnects. Return to the lobby and explicitly select/add the intended controller before restarting.
 
@@ -102,6 +102,7 @@ Changes apply to the next round. Remapping is disabled during a round and automa
 | Action | Keyboard 1 | Keyboard 2 | Standard gamepad |
 | --- | --- | --- | --- |
 | Move | Left / Right | A / D | D-pad left / right |
+| Soft drop | Down | S | D-pad down |
 | Rotate clockwise | X | K | East face button: B / Circle |
 | Rotate counterclockwise | Z | J | South face button: A / Cross |
 | Hard drop | Space | W | D-pad up |
