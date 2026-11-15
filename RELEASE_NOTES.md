@@ -49,4 +49,4 @@ and the linked repository Actions run for the platform-specific results.
 The build is unsigned. Physical Windows/controller playtesting, WAN play and
 frame pacing still need testing; automated headless startup is not a gameplay
 or performance benchmark. With VSync off, visible tearing depends on the PC
-and display. Exact falling-block game timing and the latest private guideline are not claimed.
+and display. Exact comparison-game timing and the latest private guideline are not claimed.

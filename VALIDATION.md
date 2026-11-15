@@ -74,7 +74,7 @@ DAS, ARR and soft drop share the same 0–10 track and numeric readout; 0 select
 the existing default on each control. Custom speeds keep their previous values,
 with an added 75 cells/second finite step. Reset handling puts all three at 0.
 Default soft drop at zero matches the 20× normal-gravity rule in the publicly
-reproduced March 2009 guideline (sections 5.5 and 7.1); exact falling-block game timing and the
+reproduced March 2009 guideline (sections 5.5 and 7.1); exact comparison-game timing and the
 latest private guideline remain unverified. Default soft drop now follows the
 corrected gravity curve. Instant stays a separate toggle and retains lock delay.
 Online rooms show a CURRENTLY SPECTATING banner whenever the local computer owns no player slots,
@@ -361,10 +361,10 @@ isolated user-data directories for tests that write preferences.
 To compare an earlier local renderer instead of the repository baseline, add
 `--baseline-file /path/to/previous_board_view.gd` to the capture command.
 
-Visual convention reference: Nintendo's [historical source link removed]
+Visual convention reference: Nintendo's external comparison
 describe a left-side incoming meter with one block per garbage row. The artwork
 here is original, and Downstack's existing timing/cancellation rules are used;
-this is not an attempt to reproduce falling-block game 99's complete attack system.
+this is not an attempt to reproduce a comparison game's complete attack system.
 
 ---
 

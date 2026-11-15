@@ -32,7 +32,7 @@ starting gravity. Default soft drop at zero runs at 20× that gravity. The separ
 Instant option reaches the floor immediately and retains lock delay. Ninety new
 gravity checks cover the curve, fast ticks, level boundaries, Sprint, release,
 default and Instant lock delay, and the versus cap.
-Exact falling-block game timing and the latest private guideline remain unverified.
+Exact comparison-game timing and the latest private guideline remain unverified.
 
 Enlarged and centered Hold/Next previews, shifted the playfield right, and added
 the nonlinear incoming-garbage meter with separate amount and urgency cues.
@@ -85,7 +85,7 @@ Fixed a reproduced controller soft-drop bug. Brief release/repress events previo
 
 Moved Instant soft drop to an explicit toggle; the slider directly below ARR now ends at a finite 120 cells/second. Existing saved choices are preserved. Individual bindings now visibly say Change or + Bind input, and the lobby links directly to Rebind each key / button.
 
-Added SOFT_DROP_REFERENCE.md, cross-checking the historical falling-block game guideline, TETR.IO's public settings/team FAQ/patch notes, SEGA's manual and falling-block game Effect's official-site guide. Keeps the distinction between 20× gravity, fixed cells/second and explicit Instant. Exact commercial-game numeric timing is not claimed where it could not be verified.
+Added SOFT_DROP_REFERENCE.md, cross-checking the historical historical design reference, TETR.IO's public settings/team FAQ/patch notes, SEGA's manual and a comparison game's official-site guide. Keeps the distinction between 20× gravity, fixed cells/second and explicit Instant. Exact commercial-game numeric timing is not claimed where it could not be verified.
 
 All 337 automated checks passed, including 48 new controller-drop checks and 38 settings checks, plus four-process loopback multiplayer. Controller input was simulated; actual Windows/controller hardware is not available here. Network protocol remains 3. The Windows build is unsigned.
 
@@ -115,6 +115,6 @@ Moved hold to the left. Added 18 synthesized sound effects, ambient music, and i
 
 Replaced raw DAS/ARR UI with independent 1–10 sliders. Level 5 retains the prior baseline; level 10 halves its wait and repeat interval. Fractional ARR accumulation preserves distinct intermediate speed levels. Migrates prior handling preferences where available.
 
-Documented falling-block game attack-table references, distinctions from custom garbage behavior, and verification limits. Attack amounts remain unchanged. Added 81 garbage and 62 feature checks alongside the existing 41 core checks and four-process network integration. Network protocol incremented to 2; all players need this version.
+Documented comparison-game attack-table references, distinctions from custom garbage behavior, and verification limits. Attack amounts remain unchanged. Added 81 garbage and 62 feature checks alongside the existing 41 core checks and four-process network integration. Network protocol incremented to 2; all players need this version.
 
 The Windows release remains unsigned. Trusted-publisher status is not established by these packaging changes.

@@ -17,6 +17,7 @@ import tempfile
 import zipfile
 
 from make_shortcut_helper import build as build_shortcut
+from check_branding import main as check_branding
 
 ROOT = Path(__file__).resolve().parents[1]
 ENGINE = os.environ.get("GODOT_BIN", "godot")
@@ -33,6 +34,8 @@ def command(args, **kwargs):
 
 
 def build(destination):
+    if check_branding() != 0:
+        raise SystemExit("Resolve wording audit before packaging.")
     project = (ROOT / "project.godot").read_text()
     version = re.search(r'^config/version="([0-9]+\.[0-9]+\.[0-9]+)"$',
                         project, re.M).group(1)

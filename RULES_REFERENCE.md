@@ -26,7 +26,7 @@ B2B is `-1` with no chain, `0` after the first qualifying clear, then `1`, `2`,
 and so on. A qualifying clear is a quad or line-clearing T-spin, including minis.
 Ordinary single/double/triple clears reset B2B; a placement clearing nothing
 preserves its exact value. Breaking B2B pays out no stored attack. An ordinary
-perfect clear still breaks B2B under the retained falling-block game-style PC behavior; a quad
+perfect clear still breaks B2B under the retained comparison-game-style PC behavior; a quad
 PC remains a qualifying clear. TETR.IO's all-spin and all-clear B2B extensions
 were not selected.
 
@@ -75,7 +75,7 @@ to its final sent value. The same rule applies to every attack size.
 | Ordinary single | 0; no garbage packet |
 | Double | 1 row |
 | Triple | 2 rows |
-| falling-block game / quad | 4 rows |
+| Quad (four-line clear) | 4 rows |
 | T-spin double | 4 rows |
 | T-spin double at B2B 4 | 8 rows |
 | T-spin double at combo index 4 and B2B 4 | 12 rows |
@@ -106,50 +106,7 @@ not a claim that all discussed ideas are implemented or that either game is copi
 exactly. Blocking was already present in Downstack and now has focused regression
 coverage for the newly agreed behavior.
 
-### Evidence for the reference calculations
-
-- OSK's original design explanation: a combo multiplier rewards strong finishing
-  clears while weakening single-only chains:
-  https://blog.osk.sh/post.php?p=5df9463f716867.05060790
-- Independent attack calculator with an attributed OSK logarithmic-single formula:
-  https://github.com/skysomorphic/tetrio-attack-calculator
-- Triangle, an independent TETR.IO client, corroborates multiplier, logarithmic
-  minimum, rounding and current Tetra League settings at reviewed commit
-  `aa0698ab8b4299b85c5f87e9b54793e1b7d9d380`:
-  https://github.com/halp1/triangle/blob/aa0698ab8b4299b85c5f87e9b54793e1b7d9d380/src/engine/utils/damageCalc/index.ts
-  https://github.com/halp1/triangle/blob/aa0698ab8b4299b85c5f87e9b54793e1b7d9d380/src/engine/garbage/index.ts
-  https://github.com/halp1/triangle/blob/aa0698ab8b4299b85c5f87e9b54793e1b7d9d380/src/classes/room/presets.ts
-- Official TETR.IO patch notes distinguish combo blocking, travel/cancellation,
-  B2B charging, opener defense and the garbage-clearing bonus. The latter three
-  extra attack mechanics are not part of this custom Downstack selection:
-  https://tetr.io/about/patchnotes/
-- Firsthand falling-block game hole-pattern experiment, including grouped reception of separate
-  attacks, used while comparing the reference games:
-  https://p8g.hatenablog.com/entry/2018/08/14/070957
-- Player-authored falling-block game cancellation/placement explanation:
-  https://note.com/dottiz712/n/nce2de5ed2fb8
-
-The tests verify Downstack's implementation of the selected formula and queue
-rules. They do not measure the current commercial falling-block game executable, establish an
-exact falling-block game travel delay, or replace human balance testing of two- and four-wide play.
-
-## Historical falling-block game reference audit — version 0.8
-
-Checked 12 November 2026. Target: **the original reference falling-block game, falling-block game-versus-falling-block game**. Do not substitute its falling-block game-versus-falling-block game gauge values or assume every licensed falling-block game game has one universal attack table.
-
-## What was verified, and its limits
-
-SEGA's public lesson page describes line clears, hold, perfect clears, T-spins, and back-to-back, but does not publish a numeric attack table. No developer-published numeric specification was found in this audit. The values below are corroborated by player-authored gameplay documentation and, where noted, an independently implemented open-source bot. They are not a claim of access to SEGA's source code, formal guideline certification, or independent frame-by-frame testing of the commercial game.
-
-- Official explanation, without numeric attack amounts: [historical source link removed]
-- FOUR's original falling-block game guide, using the **Garbage (vs. falling-block game)** column, not Gauge: [historical source link removed]
-- First-person falling-block game walkthrough with a separate falling-block game-vs-falling-block game comparison, including the perfect-clear total: https://forums.somethingawful.com/showthread.php?threadid=3868890&userid=221322
-- Cold Clear, an independent community bot, not official game code: https://github.com/MinusKelvin/cold-clear
-  - Reviewed commit: 279edd7c3177ff8077f6a930193397814b281f27
-  - Base and combo table: [historical source link removed]
-  - Back-to-back, combo application, and perfect-clear override: [historical source link removed]
-
-The core ordinary/full-T-spin table is consistent across the gameplay sources. The full long-combo curve and mini-double entry are also present in Cold Clear's source; that corroboration is weaker than an official specification or direct measurement of the game. The mini recognition rules themselves have not been exhaustively compared against falling-block game.
+## Historical comparison-game reference audit — version 0.8
 
 ## Attack amounts before cancellation
 
@@ -158,7 +115,7 @@ The core ordinary/full-T-spin table is consistent across the gameplay sources. T
 | Single | 0 |
 | Double | 1 |
 | Triple | 2 |
-| Four-line clear / falling-block game | 4 |
+| Quad (four-line clear) | 4 |
 | Full T-spin single | 2 |
 | Full T-spin double | 4 |
 | Full T-spin triple | 6 |
@@ -182,26 +139,25 @@ A non-clearing placement ends the combo. The first clear is index zero; omitting
 
 A **perfect clear sets the attack to 10 total** before incoming cancellation. It does not add 10 to the ordinary clear or stack the normal combo bonus on top. The gameplay walkthrough explicitly describes the ten-line total; Cold Clear likewise overwrites the calculated attack with 10 after back-to-back/combo computation. Downstack follows that behavior.
 
-For example: a plain falling-block game with no combo sends 4; a back-to-back falling-block game with no combo sends 5; a perfect clear with 4 queued incoming lines cancels those 4 and sends 6. A double into 3 queued lines cancels 1 and sends nothing.
+For example: a plain quad with no combo sends 4; a back-to-back quad with no combo sends 5; a perfect clear with 4 queued incoming lines cancels those 4 and sends 6. A double into 3 queued lines cancels 1 and sends nothing.
 
 ## Changes resulting from this audit
 
-No attack amounts needed changing: the current code already matches the table above. Added tests/garbage_test.gd to exercise actual board locks, full/mini classification, every base clear amount, back-to-back bonuses/breaks, a long single-clear combo, perfect-clear override, and incoming cancellation. These are regression tests for our implementation, not evidence that we measured falling-block game itself.
+No attack amounts needed changing: the current code already matches the table above. Added tests/garbage_test.gd to exercise actual board locks, full/mini classification, every base clear amount, back-to-back bonuses/breaks, a long single-clear combo, perfect-clear override, and incoming cancellation. These are regression tests for our implementation, not evidence that we measured comparison-game itself.
 
 ## Deliberate Downstack differences
 
-The receiver-side 1000 ms warning (adjustable), unlimited blocking while clearing, one aligned hole per packet, and round-robin targeting in 3–4-player rooms are Downstack policies. They have not been verified as exact falling-block game behavior. The normal/quick/classic delays, handling baseline, score display, and top-out handling also should not be described as exact falling-block game parity. This audit verifies the documented attack table; it does not certify the entire garbage system or all guideline edge cases.
-
+The receiver-side 1000 ms warning (adjustable), unlimited blocking while clearing, one aligned hole per packet, and round-robin targeting in 3–4-player rooms are Downstack policies. They have not been verified as exact comparison-game behavior. The normal/quick/classic delays, handling baseline, score display, and top-out handling also should not be described as exact comparison-game parity. This audit verifies the documented attack table; it does not certify the entire garbage system or all guideline edge cases.
 
 ## Soft-drop reference added in 0.3
 
-The publicly available reproduction of the March 2009 falling-block game Design Guideline, sections 5.5 and 7.1, describes soft drop at 20 times current gravity while retaining lock delay: [historical source link removed] . This is a historical document hosted by a third party; the current private licensing specification was not verified.
+The publicly available reproduction of the March 2009 historical design reference, sections 5.5 and 7.1, describes soft drop at 20 times current gravity while retaining lock delay:  . This is a historical document hosted by a third party; the current private licensing specification was not verified.
 
 Downstack adopted that 20× gravity behavior in 0.3. Fixed cells/second rates and Instant remain user-selectable alternatives. The current gravity update also adopts the documented level 1–15 curve, with one level per ten cleared lines and a level-15 cap for continuing versus matches. Sprint stays at level 1. Other timing rules retain the custom values documented above; see SOFT_DROP_REFERENCE.md for the current gravity and soft-drop details.
 
 ## Updated soft-drop comparison in 0.5
 
-See SOFT_DROP_REFERENCE.md for the cross-reference against TETR.IO and official falling-block game documentation, the distinction between multipliers and fixed rates, and the reproduced controller timing failure fixed in 0.5. Exact falling-block game and falling-block game Effect soft-drop timings are not claimed.
+See SOFT_DROP_REFERENCE.md for the cross-reference against TETR.IO and official quad documentation, the distinction between multipliers and fixed rates, and the reproduced controller timing failure fixed in 0.5. Exact comparison-game and a comparison game soft-drop timings are not claimed.
 
 ## Hidden buffer update in 0.7
 
