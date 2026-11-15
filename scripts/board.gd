@@ -27,7 +27,7 @@ const I_KICKS = {
  "23":[[0,0],[2,0],[-1,0],[2,1],[-1,-2]], "32":[[0,0],[-2,0],[1,0],[-2,-1],[1,2]],
  "30":[[0,0],[1,0],[-2,0],[1,-2],[-2,1]], "03":[[0,0],[-1,0],[2,0],[-1,2],[2,-1]]}
 # First clear is index 0; the second consecutive clear is combo 1.
-# falling-block game falling-block game-versus-falling-block game reference audit: RULES_REFERENCE.md.
+# Rule details: see RULES_REFERENCE.md.
 const COMBO_ATTACK = [0,0,1,1,2,2,3,3,4,4,4,5]
 
 var grid = []

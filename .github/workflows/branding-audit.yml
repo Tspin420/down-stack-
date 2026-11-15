@@ -1,0 +1,17 @@
+name: Branding text audit
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - name: Check every tracked file without exceptions
+        run: python3 tools/check_branding.py
+      - name: Validate audit syntax and clean checkout
+        run: |
+          python3 -m py_compile tools/check_branding.py
+          git diff --exit-code

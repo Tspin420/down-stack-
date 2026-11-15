@@ -1,6 +1,6 @@
 # Downstack 0.9.0 — room-code preview
 
-A playable falling-block game with adjustable handling, delayed garbage, local multiplayer, player-hosted rooms, and a 40-line sprint. This is the next version of Counterfall, renamed Downstack. Original project code, synthesized audio, and a new T-piece icon; no falling-block game Ultimate files are needed.
+A playable falling-block game with adjustable handling, delayed garbage, local multiplayer, player-hosted rooms, and a 40-line sprint. This is the next version of Counterfall, renamed Downstack. Original project code, synthesized audio, and a new T-piece icon; no a comparison game files are needed.
 
 ## Download versus source
 
@@ -62,7 +62,7 @@ If shortcut creation is restricted by your Windows configuration, right-click Do
 - **Instant soft drop is now a separate toggle.** The slider below ARR stays finite, from 5 to 120 cells/second. Existing saved Instant choices remain explicitly enabled; the default stays 20× gravity.
 - Each action now has clearly labeled **Change** and **+ Bind input** buttons. Open Settings, choose the keyboard player or controller, click the action, press your desired input, then Apply & back. All eight actions can be bound individually.
 - Invalid soft-drop values no longer fall through to Instant.
-- Added a source comparison of official falling-block game documentation and TETR.IO: see SOFT_DROP_REFERENCE.md. Their multiplier settings are not interchangeable with fixed cells/second.
+- Added a source comparison of official quad documentation and TETR.IO: see SOFT_DROP_REFERENCE.md. Their multiplier settings are not interchangeable with fixed cells/second.
 
 ## Included from 0.4
 
@@ -106,7 +106,7 @@ DAS is the wait before a held direction starts repeating. ARR is the interval be
 | 9 | 100.00 | 20.00 |
 | 10 — fastest | 83.33 | 16.67 |
 
-Level 10 gives twice the repeat rate and half the initial repeat wait of level 5. The baseline is the previous prototype's reference falling-block game-inspired approximation, not a newly measured frame-perfect falling-block game timing claim. The simulation runs at 120 Hz. DAS falls on fixed ticks; intermediate ARR values retain their fractional remainder so adjacent slider levels have distinct average repeat rates.
+Level 10 gives twice the repeat rate and half the initial repeat wait of level 5. The baseline is the previous prototype's a comparison game-inspired approximation, not a newly measured frame-perfect comparison-game timing claim. The simulation runs at 120 Hz. DAS falls on fixed ticks; intermediate ARR values retain their fractional remainder so adjacent slider levels have distinct average repeat rates.
 
 Handling applies per input profile. Select the keyboard or controller before changing values. Lobby sliders save immediately and update that device’s existing local player slot; use Add / update player when adding the slot or changing its name. On Settings, edits remain pending until Apply & back. The last player name is also saved. The app attempts to import the old Counterfall preferences when no Downstack preferences file exists. Saving new controls or sound settings does not overwrite them with legacy settings.
 
@@ -167,11 +167,11 @@ Versus defaults to 120 ms line-clear delay plus 100 ms entry delay. Host options
 
 Incoming garbage gets a full receiver-side warning, default 1000 ms, adjustable 250–3000 ms. Outgoing strength first cancels the oldest queued garbage. Expired garbage rises only on a non-clearing lock, never during an active piece. Line clearing continues to block it. Network travel time is additional to that warning. Each packet uses one random hole column; three/four-player attacks rotate through surviving opponents.
 
-Normal single/double/triple/quad: 0/1/2/4. Full T-spin single/double/triple: 2/4/6. Mini single/double: 0/1. Back-to-back difficult clear: +1. Combo bonus by consecutive clear: 0,0,1,1,2,2,3,3,4,4,4,5, then 5. Perfect clear: 10 total before cancellation. Read RULES_REFERENCE.md for the source audit, combo indexing, and what is custom rather than falling-block game-matched.
+Normal single/double/triple/quad: 0/1/2/4. Full T-spin single/double/triple: 2/4/6. Mini single/double: 0/1. Back-to-back difficult clear: +1. Combo bonus by consecutive clear: 0,0,1,1,2,2,3,3,4,4,4,5, then 5. Perfect clear: 10 total before cancellation. Read RULES_REFERENCE.md for the source audit, combo indexing, and what is custom rather than comparison-game-matched.
 
 ## Limits
 
-This is a guideline-style independent prototype, not an officially certified falling-block game game or an exact commercial-game recreation. No matchmaking, friend list, ranked ladder, host migration, replay system, bots, or competitive anti-cheat. Room codes use the separately deployed relay; direct IP mode still has no automatic port setup. Each computer simulates its own boards; the host coordinates routing/results. Input never waits for a remote player, and remote views update at 20 Hz. Real Windows performance, controller behavior, WAN conditions, and exhaustive rotation/top-out edge cases still need playtesting.
+This is an independently developed falling-block puzzle game in development. No matchmaking, friend list, ranked ladder, host migration, replay system, bots, or competitive anti-cheat. Room codes use the separately deployed relay; direct IP mode still has no automatic port setup. Each computer simulates its own boards; the host coordinates routing/results. Input never waits for a remote player, and remote views update at 20 Hz. Real Windows performance, controller behavior, WAN conditions, and exhaustive rotation/top-out edge cases still need playtesting.
 
 ## Source and builds
 
