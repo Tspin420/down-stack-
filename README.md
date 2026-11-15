@@ -165,4 +165,6 @@ For the repeatable test/package commands and automated Windows release workflow,
 
 Project code is supplied under MIT. Godot engine/third-party notices are in licenses. The icon was generated for Downstack; audio was synthesized for this project, with its generation source included.
 
-## Project identity and development sources
+## Project identity
+
+See [BRANDING.md](BRANDING.md) for the project description and wording checks.

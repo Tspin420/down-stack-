@@ -84,6 +84,15 @@ other profiles remain intact. Lobby resets save immediately and update the
 joined player, while Settings resets remain a cancellable draft. Existing saved
 default, finite and Instant soft-drop behavior is retained.
 
+DAS, ARR and soft drop share the same 0–10 track and numeric readout; 0 selects
+the existing default on each control. Custom speeds keep their previous values,
+with an added 75 cells/second finite step. Reset handling puts all three at 0.
+Default soft drop at zero uses 20× normal gravity and follows the corrected
+gravity curve. Instant stays a separate toggle and retains lock delay.
+Online rooms show a CURRENTLY SPECTATING banner whenever the local computer
+owns no player slots, in the lobby, its Settings page and the match. No extra
+role selector is added.
+
 ### Verification
 
 Godot **4.6.3.stable.official.7d41c59c4**, Linux, with isolated preferences.
