@@ -1,6 +1,6 @@
 # Downstack 0.8.0
 
-A playable falling-block game with adjustable handling, delayed garbage, local multiplayer, player-hosted rooms, and a 40-line sprint. This is the next version of Counterfall, renamed Downstack. Original project code, synthesized audio, and a new T-piece icon; no falling-block game Ultimate files are needed.
+A playable falling-block game with adjustable handling, delayed garbage, local multiplayer, player-hosted rooms, and a 40-line sprint. This is the next version of Counterfall, renamed Downstack. Original project code, synthesized audio, and a new T-piece icon; no a comparison game files are needed.
 
 ## Start on Windows
 
@@ -48,7 +48,7 @@ If shortcut creation is restricted by your Windows configuration, right-click Do
 - **Instant soft drop is now a separate toggle.** The slider below ARR stays finite, from 5 to 120 cells/second. Existing saved Instant choices remain explicitly enabled; the default stays 20× gravity.
 - Each action now has clearly labeled **Change** and **+ Bind input** buttons. Open Settings, choose the keyboard player or controller, click the action, press your desired input, then Apply & back. All eight actions can be bound individually.
 - Invalid soft-drop values no longer fall through to Instant.
-- Added a source comparison of official falling-block game documentation and TETR.IO: see SOFT_DROP_REFERENCE.md. Their multiplier settings are not interchangeable with fixed cells/second.
+- Added a source comparison of official quad documentation and TETR.IO: see SOFT_DROP_REFERENCE.md. Their multiplier settings are not interchangeable with fixed cells/second.
 
 ## Included from 0.4
 
@@ -92,7 +92,7 @@ DAS is the wait before a held direction starts repeating. ARR is the interval be
 | 9 | 100.00 | 20.00 |
 | 10 — fastest | 83.33 | 16.67 |
 
-Level 10 gives twice the repeat rate and half the initial repeat wait of level 5. The baseline is the previous prototype's reference falling-block game-inspired approximation, not a newly measured frame-perfect falling-block game timing claim. The simulation runs at 120 Hz. DAS falls on fixed ticks; intermediate ARR values retain their fractional remainder so adjacent slider levels have distinct average repeat rates.
+Level 10 gives twice the repeat rate and half the initial repeat wait of level 5. The baseline is the previous prototype's a comparison game-inspired approximation, not a newly measured frame-perfect comparison-game timing claim. The simulation runs at 120 Hz. DAS falls on fixed ticks; intermediate ARR values retain their fractional remainder so adjacent slider levels have distinct average repeat rates.
 
 Handling applies per input profile. Select the keyboard or controller before changing values. Lobby sliders save immediately and update that device’s existing local player slot; use Add / update player when adding the slot or changing its name. On Settings, edits remain pending until Apply & back. The last player name is also saved. The app attempts to import the old Counterfall preferences when no Downstack preferences file exists. Saving new controls or sound settings does not overwrite them with legacy settings.
 
@@ -149,7 +149,7 @@ All players share the seeded piece sequence. Practice is endless until top-out; 
 
 Versus defaults to 120 ms line-clear delay plus 100 ms entry delay. Host options include instant clear, 250 ms clear, and a slower classic profile (approximately 583 ms for single, 667 ms for double/triple, 750 ms for quad). Instant clear in versus still retains entry delay. These timings are custom approximations.
 
-Incoming garbage gets a full receiver-side warning, default 1000 ms, adjustable 250–3000 ms. Outgoing strength first cancels the oldest queued garbage. Expired garbage rises only on a non-clearing lock, never during an active piece. Line clearing continues to block it. Network travel time is additional to that warning. Every attack produces one aligned, one-cell-wide shaft whose depth equals its final sent value. A base double sends a one-deep shaft, a triple two, and a falling-block game four. Combo and B2B bonuses deepen that same shaft. Each packet chooses its hole column independently; cancellation shortens its shaft without changing the column. Three/four-player attacks rotate through surviving opponents.
+Incoming garbage gets a full receiver-side warning, default 1000 ms, adjustable 250–3000 ms. Outgoing strength first cancels the oldest queued garbage. Expired garbage rises only on a non-clearing lock, never during an active piece. Line clearing continues to block it. Network travel time is additional to that warning. Every attack produces one aligned, one-cell-wide shaft whose depth equals its final sent value. A base double sends a one-deep shaft, a triple two, and a quad four. Combo and B2B bonuses deepen that same shaft. Each packet chooses its hole column independently; cancellation shortens its shaft without changing the column. Three/four-player attacks rotate through surviving opponents.
 
 Normal single/double/triple/quad: 0/1/2/4. Full T-spin single/double/triple: 2/4/6. Mini single/double: 0/1. Combos use TETR.IO's multiplier calculation, rounded down, with its logarithmic minimum for singles. Then add the current B2B count as a flat bonus on qualifying quads and T-spin clears. The first qualifying clear establishes the chain at 0; subsequent ones add 1, 2, 3, and so on. Ordinary single/double/triple clears break B2B; non-clearing placements preserve B2B but end the combo. No surge or extra counterattack delay. Perfect clears retain the existing 10-total override before cancellation. Read RULES_REFERENCE.md for the formula, examples, sources and remaining design choices.
 
@@ -157,7 +157,7 @@ Multiplayer protocol 7 carries the numeric B2B counter and one aligned shaft per
 
 ## Limits
 
-This is a guideline-style independent prototype, not an officially certified falling-block game game or an exact commercial-game recreation. No matchmaking, friend list, invite codes, automatic port setup, relay, ranked ladder, host migration, replay system, bots, or competitive anti-cheat. Each computer simulates its own boards; the host coordinates routing/results. Input never waits for a remote player, and remote views update at 20 Hz. Real Windows performance, controller behavior, WAN conditions, and exhaustive rotation/top-out edge cases still need playtesting.
+This is an independently developed falling-block puzzle game in development. No matchmaking, friend list, invite codes, automatic port setup, relay, ranked ladder, host migration, replay system, bots, or competitive anti-cheat. Each computer simulates its own boards; the host coordinates routing/results. Input never waits for a remote player, and remote views update at 20 Hz. Real Windows performance, controller behavior, WAN conditions, and exhaustive rotation/top-out edge cases still need playtesting.
 
 ## Source and builds
 

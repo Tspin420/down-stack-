@@ -243,10 +243,10 @@ isolated user-data directories for tests that write preferences.
 To compare an earlier local renderer instead of the repository baseline, add
 `--baseline-file /path/to/previous_board_view.gd` to the capture command.
 
-Visual convention reference: Nintendo's [historical source link removed]
+Visual convention reference: Nintendo's external comparison
 describe a left-side incoming meter with one block per garbage row. The artwork
 here is original, and Downstack's existing timing/cancellation rules are used;
-this is not an attempt to reproduce falling-block game 99's complete attack system.
+this is not an attempt to reproduce a comparison game's complete attack system.
 
 ---
 

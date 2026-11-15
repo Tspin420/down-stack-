@@ -18,12 +18,6 @@ The regression fixture starts a horizontal I at its normal post-entry height, pl
 - Hidden cells remain solid for movement/rotation and can return to view when rows below them clear.
 - The visible floor, spawn location relative to the skyline, handling and lock delay are unchanged. The renderer displays only the 20 visible rows and clips hidden active/ghost cells.
 
-## Reference and limits
-
-The [historical source link removed], glossary and section 10, specifies an additional 20-row buffer, permits movement above the skyline and partial-above locks, and distinguishes fully hidden locks, blocked spawns and overflow. This is a historical document hosted by a third party, not verification of today's private licensing rules or exact reference falling-block game behavior.
-
-TETR.IO's current buffer dimension was not independently confirmed from its own accessible documentation during this update. Do not describe this release as a verified recreation of its complete top-out system.
-
 ## Tests and networking
 
 The new `tests/buffer_test.gd` contains **89 checks** for spawn heights, all eight I quarter-turn transitions at five heights, forced upward kick, partial/whole hidden locks, blocked spawns, hidden collisions, line compaction, garbage push/overflow, real ceiling/floor bounds, ghost, hard drop, hold, snapshot round trips and rejection of old 22-row states. All **640 checks** pass across the full suite.
