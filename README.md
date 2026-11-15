@@ -1,4 +1,4 @@
-# Downstack 0.9.0
+# Downstack 0.9.1
 
 Downstack is a free, independently developed falling-block puzzle game, made as a hobby project with AI assistance. It features adjustable handling, delayed garbage, local multiplayer, player-hosted rooms, and a 40-line sprint.
 
@@ -6,7 +6,7 @@ The project is intended to remain free to download and play. It is a personal ho
 
 Previously named Counterfall. Original project code, synthesized audio, and an icon created for Downstack; no files from another game are required.
 
-[Download the latest Windows release](https://github.com/Tspin420/down-stack-/releases/latest). Choose the **Downstack_Windows_0.9.0.zip** asset; GitHub’s source-code ZIP is for development.
+[Download the latest Windows release](https://github.com/Tspin420/down-stack-/releases/latest). Choose the **Downstack_Windows_0.9.1.zip** asset; GitHub’s source-code ZIP is for development.
 
 ## Start on Windows
 
@@ -26,6 +26,10 @@ Navigate menus with arrow keys or the controller D-pad; Enter / the south face b
 If shortcut creation is restricted by your Windows configuration, right-click Downstack.exe, choose Show more options if needed, then Send to > Desktop (create shortcut). Neither method moves the EXE or PCK.
 
 **Publisher warning:** This is still an unsigned development build. Renaming it and adding an icon do not create a verified publisher or guarantee that Windows SmartScreen stops warning. No certificate, security-setting change, or antivirus exception is installed. Trusted release signing needs a real signing identity and certificate; even newly signed applications can receive reputation warnings. The Windows executable has been exported and inspected, but not run on Windows hardware here. See VALIDATION.md.
+
+## New in 0.9.1
+
+Clean-source rebuild with the same gameplay, settings and protocol 8. The source history and downloadable package are checked for removed product references. See RELEASE_NOTES.md for verification and updating instructions.
 
 ## New in 0.9
 

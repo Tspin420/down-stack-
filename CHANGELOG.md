@@ -1,3 +1,7 @@
+# Downstack 0.9.1
+
+Maintenance rebuild from cleaned source and branch history. No gameplay, input, audio, asset or network-protocol changes. The release is gated on regression, multiplayer, Windows startup and packaged-content audits.
+
 # Downstack 0.9.0 — 14 November 2026
 
 VSync is explicitly disabled and rendering has no FPS cap. Gameplay remains on

@@ -2,7 +2,7 @@ config_version=5
 
 [application]
 config/name="Downstack"
-config/version="0.9.0"
+config/version="0.9.1"
 config/icon="res://assets/icon.png"
 boot_splash/image="res://assets/icon.png"
 boot_splash/fullsize=false

@@ -11,7 +11,7 @@ import tempfile
 
 root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--baseline", default="ad71b2c8cfd37f3035edf4ee27959fb9b32fafe2")
+parser.add_argument("--baseline", default="922ecc260d1155661c07052d52fc30c64002007f")
 parser.add_argument("--baseline-file", type=Path, help="Compare an earlier local board_view.gd instead of a commit")
 parser.add_argument("--output", type=Path, default=root / "build" / "visual-review")
 args = parser.parse_args()

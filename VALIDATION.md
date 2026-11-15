@@ -1,3 +1,7 @@
+# Verification for Downstack 0.9.1
+
+The maintenance release runs the full regression and multiplayer suites on Windows, exports and starts the Windows executable, and inspects the ZIP and loaded resource pack. Publication occurs only after these checks pass. Actual results are recorded in [the build run](https://github.com/Tspin420/down-stack-/actions/runs/43663530758) and the attached validation report. Existing gameplay code and assets are retained. The historical results below describe prior builds, not a new physical-hardware test.
+
 # Validation — Downstack 0.9.0
 
 ## Release verification — 14 November 2026
