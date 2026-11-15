@@ -16,6 +16,27 @@ The engine upgrade retains game code and assets, protocol 8, 120 Hz gameplay,
 20 Hz snapshots, uncapped rendering and VSync off. Physical-controller testing,
 rendered graphics, frame pacing and internet play require target-PC playtesting.
 
+## Published Windows result — 15 November 2026
+
+[Windows release run 43745950983](https://github.com/Tspin420/down-stack-/actions/runs/43745950983)
+completed successfully on Windows Server 2025 using
+`4.7.2.stable.official.ed1daf0bf`.
+
+- All twelve suites passed: **1117 checks, 0 failures**, including 8192 seeded
+  input stress events.
+- All five multiplayer processes passed, including spectator replication and
+  rejection of the legacy protocol before lobby admission.
+- Official editor/template checksums and the source wording audit passed.
+- The exported Windows runtime reported the same engine version as the editor.
+- Windows x64 export, actual executable headless startup and ZIP integrity passed.
+
+Published [v0.9.2](https://github.com/Tspin420/down-stack-/releases/tag/v0.9.2)
+was built from commit `63f73923bdee7aa779331353432f58efab6149a7`.
+Asset: `Downstack_Windows_0.9.2.zip` (40,440,563 bytes).
+SHA-256: `cf95f56a7563731972e6dd7bca535666c06fc54c03c561d2c04cab70d03b04d6`.
+GitHub's uploaded-asset digest matches the packaging log. These checks do not
+replace physical-controller, rendered graphics, frame-pacing or internet tests.
+
 # Verification for Downstack 0.9.1
 
 The maintenance release runs the full regression and multiplayer suites on Windows, exports and starts the Windows executable, and inspects the ZIP and loaded resource pack. Publication occurs only after these checks pass. Actual results are recorded in [the build run](https://github.com/Tspin420/down-stack-/actions/runs/43663530758) and the attached validation report. Existing gameplay code and assets are retained. The historical results below describe prior builds, not a new physical-hardware test.
