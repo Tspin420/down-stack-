@@ -1,6 +1,6 @@
 """Export and package a versioned Windows x64 release with a SHA-256 checksum.
 
-Requires Python 3.11+, Godot 4.6.3 Standard and matching Windows export templates.
+Requires Python 3.11+, Godot 4.7.2 Standard and matching Windows export templates.
 Set GODOT_BIN if Godot is not on PATH. The game itself has no Python dependency.
 """
 import argparse
@@ -44,8 +44,8 @@ def build(destination):
     protocol = int(re.search(r"^const PROTOCOL = (\d+)$",
                             (ROOT / "scripts/session.gd").read_text(), re.M).group(1))
     engine_version = command([ENGINE, "--version"])
-    if not engine_version.startswith("4.6.3.stable"):
-        raise SystemExit("Use Godot 4.6.3 Standard and matching export templates.")
+    if not engine_version.startswith("4.7.2.stable"):
+        raise SystemExit("Use Godot 4.7.2 Standard and matching export templates.")
     preset = (ROOT / "export_presets.cfg").read_text()
     for field in ("file_version", "product_version"):
         if f'application/{field}="{version}.0"' not in preset:
@@ -63,6 +63,10 @@ def build(destination):
         exe = stage / "Downstack.exe"
         command([ENGINE, "--headless", "--path", str(ROOT), "--export-release",
                  "Windows Desktop", str(exe)])
+        if os.name == "nt":
+            exported_version = command([str(exe), "--version"])
+            if exported_version != engine_version:
+                raise SystemExit("Export template engine version differs from the editor.")
         # Verify this is the expected 64-bit Windows executable and external pack.
         data = exe.read_bytes()
         pe_offset = struct.unpack_from("<I", data, 0x3C)[0]

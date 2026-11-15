@@ -1,3 +1,16 @@
+# Downstack 0.9.2 — 15 November 2026
+
+Upgraded the bundled engine from Godot 4.6.3 to 4.7.2 stable, including the
+checksum-pinned editor and matching Windows export templates. The project
+feature version, build guard and developer instructions now target Godot 4.7.
+Updated the bundled engine and third-party notices from the official 4.7.2 source.
+Windows packaging verifies that the exported runtime matches the editor version.
+
+Game code, assets, handling, gravity, garbage rules and protocol 8 are retained.
+Rendering remains uncapped with VSync off and gameplay at 120 Hz. Saved settings
+and Sprint records use the same per-user directory. Automated checks gate the
+release; controller, display/frame-pacing and internet playtesting remain manual.
+
 # Downstack 0.9.1
 
 Maintenance rebuild from cleaned source and branch history. No gameplay, input, audio, asset or network-protocol changes. The release is gated on regression, multiplayer, Windows startup and packaged-content audits.

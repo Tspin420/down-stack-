@@ -1,3 +1,21 @@
+# Verification for Downstack 0.9.2
+
+This release targets Godot 4.7.2 stable. The Windows release workflow must pass
+all twelve existing regression suites and the five-process loopback multiplayer
+test before exporting and publishing. Packaging checks the exported runtime's
+version against the editor, inspects the Windows x64 executable and external
+PCK, starts the actual Windows executable headlessly, and verifies ZIP integrity.
+The source wording audit also remains required.
+
+[Windows release runs](https://github.com/Tspin420/down-stack-/actions/workflows/release.yml)
+contain the execution results. The ZIP's BUILD_INFO.json records its exact engine
+version, source commit and timing configuration. The entries below are historical
+results for earlier builds and are not evidence of a 0.9.2 test pass.
+
+The engine upgrade retains game code and assets, protocol 8, 120 Hz gameplay,
+20 Hz snapshots, uncapped rendering and VSync off. Physical-controller testing,
+rendered graphics, frame pacing and internet play require target-PC playtesting.
+
 # Verification for Downstack 0.9.1
 
 The maintenance release runs the full regression and multiplayer suites on Windows, exports and starts the Windows executable, and inspects the ZIP and loaded resource pack. Publication occurs only after these checks pass. Actual results are recorded in [the build run](https://github.com/Tspin420/down-stack-/actions/runs/43663530758) and the attached validation report. Existing gameplay code and assets are retained. The historical results below describe prior builds, not a new physical-hardware test.

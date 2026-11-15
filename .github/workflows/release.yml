@@ -42,7 +42,7 @@ jobs:
             "exists=false" >> $env:GITHUB_OUTPUT
           }
           exit 0
-      - name: Install verified Godot 4.6.3 editor and templates
+      - name: Install verified Godot 4.7.2 editor and templates
         if: steps.version.outputs.exists == 'false'
         run: python tools/install_ci_godot.py
       - name: Run all regression and multiplayer checks
