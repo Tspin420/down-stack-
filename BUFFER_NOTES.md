@@ -20,9 +20,10 @@ The regression fixture starts a horizontal I at its normal post-entry height, pl
 
 ## Reference and limits
 
-The [historical source link removed], glossary and section 10, specifies an additional 20-row buffer, permits movement above the skyline and partial-above locks, and distinguishes fully hidden locks, blocked spawns and overflow. This is a historical document hosted by a third party, not verification of today's private licensing rules or exact reference falling-block game behavior.
-
-TETR.IO's current buffer dimension was not independently confirmed from its own accessible documentation during this update. Do not describe this release as a verified recreation of its complete top-out system.
+The historical research behind the buffer dimensions and top-out choices
+is retained in [the development source record](docs/RESEARCH_SOURCES.md).
+The boundaries above describe Downstack’s implementation; they are not a
+certification or a verified recreation of another game’s complete system.
 
 ## Tests and networking
 

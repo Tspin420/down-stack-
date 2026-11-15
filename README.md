@@ -2,7 +2,7 @@
 
 Downstack is a free, independently developed falling-block puzzle game, made as a hobby project with AI assistance. It features adjustable handling, delayed garbage, local multiplayer, player-hosted rooms, and a 40-line sprint.
 
-The project is intended to remain free to download and play. It is made by a fan of falling-block puzzle games, not as an official falling-block game product, and is not affiliated with or endorsed by The falling-block game Company or falling-block game Holding.
+The project is intended to remain free to download and play. It is a personal hobby project made by a fan of falling-block puzzle games, not an official product of or endorsement by another game publisher.
 
 Previously named Counterfall. Original project code, synthesized audio, and an icon created for Downstack; no files from another game are required.
 
@@ -32,9 +32,9 @@ If shortcut creation is restricted by your Windows configuration, right-click Do
 - **VSync off, no render FPS cap, fixed 120 Hz gameplay.** Rendering speed does not change movement, gravity or lock timing. Remote boards receive snapshots at 20 Hz. Driver or operating-system settings may still impose synchronization or a cap; tearing can be visible with VSync disabled.
 - Neon menus, dedicated host/join setup, player cards, keyboard/controller navigation, and an automatic spectator banner. The existing T icon appears while loading.
 - Matching 0–10 handling sliders, zero/default presets, per-input Reset handling and a separate Instant soft-drop option.
-- Historical guideline gravity for levels 1–15, fixed starting gravity in Sprint, and 20× gravity for default soft drop. See SOFT_DROP_REFERENCE.md for the documented source and versus continuation policy.
+- Level-based gravity for levels 1–15, fixed starting gravity in Sprint, and 20× gravity for default soft drop. See SOFT_DROP_REFERENCE.md for the documented source and versus continuation policy.
 - Larger Hold/Next previews, adjusted board position, beveled blocks, continuous line-clear effects and the nonlinear garbage meter.
-- TETR.IO-style combos plus the custom growing flat B2B bonus; one shaft per attack, one-for-one cancellation, combo blocking and intact large attacks. See RULES_REFERENCE.md.
+- Multiplier-based combos plus the custom growing flat B2B bonus; one shaft per attack, one-for-one cancellation, combo blocking and intact large attacks. See RULES_REFERENCE.md.
 - **Protocol 8: all players and spectators must update.** Older clients are rejected before joining.
 
 See [RELEASE_NOTES.md](RELEASE_NOTES.md) for this update, [CHANGELOG.md](CHANGELOG.md) for earlier releases and [VALIDATION.md](VALIDATION.md) for checks and remaining hardware tests.
@@ -63,7 +63,7 @@ DAS is the wait before a held direction starts repeating. ARR is the interval be
 | 9 | 100.00 | 20.00 |
 | 10 — fastest | 83.33 | 16.67 |
 
-Zero is a default preset, separate from the custom 1–10 range; custom level 5 has the same timing. Existing saved levels retain their physical speeds. Level 10 gives twice the repeat rate and half the initial repeat wait of the default. The baseline is the previous prototype's reference falling-block game-inspired approximation, not a newly measured frame-perfect falling-block game timing claim. The simulation runs at 120 Hz. DAS falls on fixed ticks; intermediate ARR values retain their fractional remainder so adjacent slider levels have distinct average repeat rates.
+Zero is a default preset, separate from the custom 1–10 range; custom level 5 has the same timing. Existing saved levels retain their physical speeds. Level 10 gives twice the repeat rate and half the initial repeat wait of the default. The baseline retains the previous prototype’s handling values; no frame-perfect match to another game is claimed. The simulation runs at 120 Hz. DAS falls on fixed ticks; intermediate ARR values retain their fractional remainder so adjacent slider levels have distinct average repeat rates.
 
 Handling applies per input profile. Select the keyboard or controller before changing values. Lobby sliders save immediately and update that device’s existing local player slot; use Join as player to add a slot or Update player to change its name. **Reset handling** puts all three sliders at 0, restoring default DAS/ARR and soft drop for the selected input without changing its bindings, name or other profiles. In the lobby it saves immediately; on Settings it updates the draft until Apply & back. The last player name is also saved. The app attempts to import the old Counterfall preferences when no Downstack preferences file exists. Saving new controls or sound settings does not overwrite them with legacy settings.
 
@@ -91,7 +91,7 @@ Reusing an input swaps its previous binding into the edited slot, preventing one
 
 Settings are local and persist across launches. Keyboard profiles are separate. Controller profiles use the controller's reported model/GUID, with connection order separating identical controllers. A different connection order for identical pads may change which saved profile they use. Controller hotplug updates the selector and cancels any capture. A disconnected controller is blocked for the rest of that round, even if the same runtime ID reconnects. Return to the lobby and explicitly select/add the intended controller before restarting.
 
-Normal gravity uses the public March 2009 guideline's curve: `1000 × (0.8 − (L − 1) × 0.007)^(L − 1)` milliseconds per cell. Versus advances one level per ten cleared lines, then holds level 15 for long matches. Sprint stays at level 1. Default soft drop at slider **0** is **20× this gravity**, with normal lock delay retained; the separate **Instant soft drop** toggle reaches the floor immediately. The reference is the historical guideline, not verified falling-block game timing or the latest private specification. See SOFT_DROP_REFERENCE.md for details and tests.
+Normal gravity uses this level-based curve: `1000 × (0.8 − (L − 1) × 0.007)^(L − 1)` milliseconds per cell. Versus advances one level per ten cleared lines, then holds level 15 for long matches. Sprint stays at level 1. Default soft drop at slider **0** is **20× this gravity**, with normal lock delay retained; the separate **Instant soft drop** toggle reaches the floor immediately. These are Downstack’s documented settings, not a claim of certification or exact timing parity with another game. See SOFT_DROP_REFERENCE.md for details and tests.
 
 Soft-drop level 0 selects the existing 20× gravity default. Levels 1–10 select fixed minimum descent speeds: 5, 10, 15, 20, 30, 45, 60, 75, 90 or 120 cells/second. The added 75 cells/second step fills the tenth finite position without changing any saved rate. These rates never slow a faster normal gravity. All three sliders use the same track, thumb, dimensions and numeric readout; the soft-drop readout tooltip identifies its actual rate. The separate Instant soft drop toggle moves the active piece to the floor in one simulation tick and retains the normal lock delay. Holding it does not reset that delay forever. Hard drop still lands and locks immediately at every soft-drop setting. Finite soft drop responds immediately when its cadence permits, then repeats at the selected interval. Brief releases/re-presses cannot exceed that rate. Releasing it returns to normal gravity without a stored-time burst.
 
@@ -120,9 +120,9 @@ All players share the seeded piece sequence. Practice is endless until top-out; 
 
 Versus defaults to 120 ms line-clear delay plus 100 ms entry delay. Host options include instant clear, 250 ms clear, and a slower classic profile (approximately 583 ms for single, 667 ms for double/triple, 750 ms for quad). Instant clear in versus still retains entry delay. These timings are custom approximations.
 
-Incoming garbage gets a full receiver-side warning, default 1000 ms, adjustable 250–3000 ms. Outgoing strength first cancels the oldest queued garbage. Expired garbage rises only on a non-clearing lock, never during an active piece. Line clearing continues to block it. Network travel time is additional to that warning. Every attack produces one aligned, one-cell-wide shaft whose depth equals its final sent value. A base double sends a one-deep shaft, a triple two, and a falling-block game four. Combo and B2B bonuses deepen that same shaft. Each packet chooses its hole column independently; cancellation shortens its shaft without changing the column. Three/four-player attacks rotate through surviving opponents.
+Incoming garbage gets a full receiver-side warning, default 1000 ms, adjustable 250–3000 ms. Outgoing strength first cancels the oldest queued garbage. Expired garbage rises only on a non-clearing lock, never during an active piece. Line clearing continues to block it. Network travel time is additional to that warning. Every attack produces one aligned, one-cell-wide shaft whose depth equals its final sent value. A base double sends a one-deep shaft, a triple two, and a quad four. Combo and B2B bonuses deepen that same shaft. Each packet chooses its hole column independently; cancellation shortens its shaft without changing the column. Three/four-player attacks rotate through surviving opponents.
 
-Normal single/double/triple/quad: 0/1/2/4. Full T-spin single/double/triple: 2/4/6. Mini single/double: 0/1. Combos use TETR.IO's multiplier calculation, rounded down, with its logarithmic minimum for singles. Then add the current B2B count as a flat bonus on qualifying quads and T-spin clears. The first qualifying clear establishes the chain at 0; subsequent ones add 1, 2, 3, and so on. Ordinary single/double/triple clears break B2B; non-clearing placements preserve B2B but end the combo. No surge or extra counterattack delay. Perfect clears retain the existing 10-total override before cancellation. Read RULES_REFERENCE.md for the formula, examples, sources and remaining design choices.
+Normal single/double/triple/quad: 0/1/2/4. Full T-spin single/double/triple: 2/4/6. Mini single/double: 0/1. Combos use the documented multiplier calculation, rounded down, with its logarithmic minimum for singles. Then add the current B2B count as a flat bonus on qualifying quads and T-spin clears. The first qualifying clear establishes the chain at 0; subsequent ones add 1, 2, 3, and so on. Ordinary single/double/triple clears break B2B; non-clearing placements preserve B2B but end the combo. No surge or extra counterattack delay. Perfect clears retain the existing 10-total override before cancellation. Read RULES_REFERENCE.md for the formula, examples, sources and remaining design choices.
 
 Multiplayer protocol 8 requires the updated gravity curve and retains the numeric B2B counter and one aligned shaft per attack. All participants must use this updated build; older clients are rejected before lobby admission. Each attack keeps one target, one hole column and one packet identity, including attacks above 20 or 40 rows.
 
@@ -164,3 +164,10 @@ This fixture writes sample player preferences. Use an isolated user-data directo
 For the repeatable test/package commands and automated Windows release workflow, see [GITHUB_SETUP.md](GITHUB_SETUP.md). Windows builds belong in Releases.
 
 Project code is supplied under MIT. Godot engine/third-party notices are in licenses. The icon was generated for Downstack; audio was synthesized for this project, with its generation source included.
+
+## Project identity and development sources
+
+See [BRANDING.md](BRANDING.md) for naming and release-review guidance.
+External research references are retained separately in
+[docs/RESEARCH_SOURCES.md](docs/RESEARCH_SOURCES.md). Third-party licenses
+and notices remain in `licenses/`; changing wording is not legal clearance.

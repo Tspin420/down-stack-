@@ -73,7 +73,7 @@ Starting a match releases focus and disables header keyboard focus; result
 buttons regain it after a round. Menu artwork is static and shares the existing
 beveled tile. Neon pink is the primary accent, with blue and green mode badges
 and player-card borders on dark violet panels. The existing app icon is retained.
-Gravity now follows the March 2009 guideline's level 1–15 formula, with one level
+Gravity now follows the documented level 1–15 formula, with one level
 per ten cleared lines and level 15 held for continuing versus matches. The former
 40 ms minimum interval is removed. Sprint stays at starting gravity. Protocol 8
 rejects older builds so everyone uses the same gravity curve; attack rules remain.
@@ -87,9 +87,9 @@ default, finite and Instant soft-drop behavior is retained.
 DAS, ARR and soft drop share the same 0–10 track and numeric readout; 0 selects
 the existing default on each control. Custom speeds keep their previous values,
 with an added 75 cells/second finite step. Reset handling puts all three at 0.
-Default soft drop at zero matches the 20× normal-gravity rule in the publicly
-reproduced March 2009 guideline (sections 5.5 and 7.1); exact falling-block game timing and the
-latest private guideline remain unverified. Default soft drop now follows the
+Default soft drop at zero uses 20× normal gravity. Historical research is
+retained in docs/RESEARCH_SOURCES.md; exact timing parity with other games
+remains unverified. Default soft drop now follows the
 corrected gravity curve. Instant stays a separate toggle and retains lock delay.
 Online rooms show a CURRENTLY SPECTATING banner whenever the local computer owns no player slots,
 in the lobby, its Settings page and the match. No extra role selector is added.
@@ -104,7 +104,7 @@ Godot **4.6.3.stable.official.7d41c59c4**, Linux, with isolated preferences.
   cancellation and preservation of custom bindings and other profiles.
   The slider follow-up adds 40 checks for default timing, shared slider layout,
   zero/default versus Instant, every saved soft-drop rate through the UI, and 75 cells/second cadence.
-  The guideline verification adds five default release/lock/continued-hold checks.
+  The default-drop verification adds five release/lock/continued-hold checks.
   The new gravity suite adds **90 checks** for every documented level, actual
   falling distance, fractional and multiple-cell ticks, level boundaries, the
   versus cap, fixed Sprint gravity, default/Instant drop, release and lock delay.
@@ -142,7 +142,7 @@ gameplay and protocol do not describe this subsequent rules update.
 
 ### Implemented behavior
 
-- TETR.IO combo multiplier and logarithmic minimum, rounded down, followed by
+- The documented combo multiplier and logarithmic minimum, rounded down, followed by
   the user's growing flat B2B bonus. No B2B surge or multiplication of that bonus.
 - One-for-one FIFO cancellation and blocking on every clearing placement,
   including zero-attack singles. A non-clearing lock admits ready garbage.
@@ -375,10 +375,10 @@ isolated user-data directories for tests that write preferences.
 To compare an earlier local renderer instead of the repository baseline, add
 `--baseline-file /path/to/previous_board_view.gd` to the capture command.
 
-Visual convention reference: Nintendo's [historical source link removed]
-describe a left-side incoming meter with one block per garbage row. The artwork
-here is original, and Downstack's existing timing/cancellation rules are used;
-this is not an attempt to reproduce falling-block game 99's complete attack system.
+The visual-convention research citation is retained in
+[the development source record](docs/RESEARCH_SOURCES.md). This proposal uses
+Downstack’s existing timing and cancellation rules; it does not claim to
+reproduce another game’s complete attack system.
 
 ---
 
@@ -407,7 +407,7 @@ Actual Windows launch, Windows desktop-shortcut creation/launch, Windows fullscr
 
 Physical controllers, keyboard rollover, real OS focus transfer, physical hotplug behavior, WAN/router/NAT behavior, variable latency/loss, malicious clients, long-duration play, exhaustive SRS/top-out edge cases, and exact commercial-game timing are not tested here.
 
-The garbage reference audit compares documented values and community code. It is not an official SEGA specification or a direct measurement of the commercial game. See RULES_REFERENCE.md and SOFT_DROP_REFERENCE.md.
+The garbage reference audit compares documented values and community code. It is not an official publisher specification or a direct measurement of another game. See RULES_REFERENCE.md and SOFT_DROP_REFERENCE.md.
 
 ## Architecture and reproduction
 

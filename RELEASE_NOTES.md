@@ -14,12 +14,12 @@ account, administrator rights, or a separate Godot installation is not required.
 - Matching 0–10 DAS, ARR and soft-drop sliders. **0 selects the default**;
   Reset handling affects only the selected input profile. Instant soft drop
   remains a separate option and retains lock delay.
-- Normal gravity follows the public March 2009 guideline's level 1–15 curve.
+- Normal gravity follows the documented level 1–15 curve.
   Versus advances every ten lines and stays at level 15; Sprint keeps starting
   gravity. Default soft drop is 20× current gravity.
 - Larger Hold/Next previews, adjusted board position, beveled blocks, continuous
   line-clear effects, and a nonlinear incoming-garbage meter.
-- TETR.IO-style combo calculation followed by the custom growing flat B2B bonus.
+- Multiplier-based combo calculation followed by the custom growing flat B2B bonus.
   Each attack creates one shaft as deep as its final sent value. One-for-one
   FIFO cancellation and garbage blocking on clearing placements apply.
   Large attacks are no longer cut off at 20 or 40 rows. No surge or added
@@ -49,4 +49,4 @@ and the linked repository Actions run for the platform-specific results.
 The build is unsigned. Physical Windows/controller playtesting, WAN play and
 frame pacing still need testing; automated headless startup is not a gameplay
 or performance benchmark. With VSync off, visible tearing depends on the PC
-and display. Exact falling-block game timing and the latest private guideline are not claimed.
+and display. Exact timing parity with other games is not claimed.

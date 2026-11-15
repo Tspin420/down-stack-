@@ -17,6 +17,7 @@ import tempfile
 import zipfile
 
 from make_shortcut_helper import build as build_shortcut
+from check_branding import main as check_branding
 
 ROOT = Path(__file__).resolve().parents[1]
 ENGINE = os.environ.get("GODOT_BIN", "godot")
@@ -33,6 +34,8 @@ def command(args, **kwargs):
 
 
 def build(destination):
+    if check_branding() != 0:
+        raise SystemExit("Resolve the branding audit before packaging a release.")
     project = (ROOT / "project.godot").read_text()
     version = re.search(r'^config/version="([0-9]+\.[0-9]+\.[0-9]+)"$',
                         project, re.M).group(1)
@@ -75,8 +78,10 @@ def build(destination):
         build_shortcut(stage / "Create Desktop Shortcut.cmd")
         for name in ("README.md", "RELEASE_NOTES.md", "CHANGELOG.md", "VALIDATION.md",
                      "RULES_REFERENCE.md", "SOFT_DROP_REFERENCE.md", "INPUT_AUDIT.md",
-                     "BUFFER_NOTES.md", "LICENSE.txt"):
+                     "BUFFER_NOTES.md", "BRANDING.md", "LICENSE.txt"):
             shutil.copy2(ROOT / name, stage / name)
+        (stage / "docs").mkdir()
+        shutil.copy2(ROOT / "docs/RESEARCH_SOURCES.md", stage / "docs/RESEARCH_SOURCES.md")
         shutil.copytree(ROOT / "licenses", stage / "licenses")
         # Test the release binary on Windows; on other hosts load its actual PCK.
         with tempfile.TemporaryDirectory(prefix="downstack-smoke-") as profile:

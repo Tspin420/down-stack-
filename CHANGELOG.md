@@ -25,21 +25,21 @@ Zero selects the existing default on every control; Reset handling returns all
 three to zero. Custom 1–10 DAS/ARR speeds and saved soft-drop rates are retained;
 a 75 cells/second choice fills the tenth finite soft-drop position. Instant stays
 an explicit toggle and turning it off restores the selected slider position.
-Normal gravity now follows the public March 2009 guideline's level 1–15 curve,
+Normal gravity now follows the documented level 1–15 curve,
 replacing the gentler custom curve and 40 ms minimum interval. Versus advances
 every ten lines and holds at level 15 for continuing matches. Sprint stays at
 starting gravity. Default soft drop at zero runs at 20× that gravity. The separate
 Instant option reaches the floor immediately and retains lock delay. Ninety new
 gravity checks cover the curve, fast ticks, level boundaries, Sprint, release,
 default and Instant lock delay, and the versus cap.
-Exact falling-block game timing and the latest private guideline remain unverified.
+Exact timing parity with other games remains unverified.
 
 Enlarged and centered Hold/Next previews, shifted the playfield right, and added
 the nonlinear incoming-garbage meter with separate amount and urgency cues.
 Blocks use a shared beveled tile, and adjacent cleared rows form one continuous
 fading band. Renderer caches avoid repeated style and piece-cell construction.
 
-Combos use the TETR.IO multiplier and logarithmic minimum, followed by a growing
+Combos use the documented multiplier and logarithmic minimum, followed by a growing
 flat B2B bonus. Each attack retains one shaft with depth equal to the sent value;
 combo/B2B bonuses deepen that same shaft. One-for-one cancellation and blocking
 on every clearing placement remain, with no surge or extra counterattack delay.
@@ -85,7 +85,7 @@ Fixed a reproduced controller soft-drop bug. Brief release/repress events previo
 
 Moved Instant soft drop to an explicit toggle; the slider directly below ARR now ends at a finite 120 cells/second. Existing saved choices are preserved. Individual bindings now visibly say Change or + Bind input, and the lobby links directly to Rebind each key / button.
 
-Added SOFT_DROP_REFERENCE.md, cross-checking the historical falling-block game guideline, TETR.IO's public settings/team FAQ/patch notes, SEGA's manual and falling-block game Effect's official-site guide. Keeps the distinction between 20× gravity, fixed cells/second and explicit Instant. Exact commercial-game numeric timing is not claimed where it could not be verified.
+Added SOFT_DROP_REFERENCE.md, cross-checking historical rules references, public settings, manuals and gameplay guides. The research citations are retained in docs/RESEARCH_SOURCES.md. Keeps the distinction between 20× gravity, fixed cells/second and explicit Instant. Exact commercial-game numeric timing is not claimed where it could not be verified.
 
 All 337 automated checks passed, including 48 new controller-drop checks and 38 settings checks, plus four-process loopback multiplayer. Controller input was simulated; actual Windows/controller hardware is not available here. Network protocol remains 3. The Windows build is unsigned.
 
@@ -115,6 +115,6 @@ Moved hold to the left. Added 18 synthesized sound effects, ambient music, and i
 
 Replaced raw DAS/ARR UI with independent 1–10 sliders. Level 5 retains the prior baseline; level 10 halves its wait and repeat interval. Fractional ARR accumulation preserves distinct intermediate speed levels. Migrates prior handling preferences where available.
 
-Documented falling-block game attack-table references, distinctions from custom garbage behavior, and verification limits. Attack amounts remain unchanged. Added 81 garbage and 62 feature checks alongside the existing 41 core checks and four-process network integration. Network protocol incremented to 2; all players need this version.
+Documented historical attack-table references, distinctions from custom garbage behavior, and verification limits. Attack amounts remain unchanged. Added 81 garbage and 62 feature checks alongside the existing 41 core checks and four-process network integration. Network protocol incremented to 2; all players need this version.
 
 The Windows release remains unsigned. Trusted-publisher status is not established by these packaging changes.
